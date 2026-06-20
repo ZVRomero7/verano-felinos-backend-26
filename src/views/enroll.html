@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Inscripción - Verano Felinos 2026</title>
+  
+  <!-- CSS & Fonts -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .shadow-premium {
+      box-shadow: 0px 10px 30px rgba(0,0,0,0.08);
+    }
+    .shadow-nav {
+      box-shadow: 0px 4px 20px rgba(0,0,0,0.12);
+    }
+    body {
+      background-color: #F8F9FA;
+      -webkit-font-smoothing: antialiased;
+    }
+    .floating-label-input:focus-within label,
+    .floating-label-input input:not(:placeholder-shown) + label,
+    .floating-label-input select:focus + label,
+    .floating-label-input select:not([value=""]) + label {
+      transform: translateY(-1.5rem) scale(0.85);
+      color: #004784;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    .chip-active {
+      background-color: #006b5f !important;
+      color: white !important;
+      border-color: #006b5f !important;
+    }
+    .loading-overlay {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(8px);
+    }
+  </style>
+
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#004784",          /* Royal Blue */
+            "primary-container": "#1d5fa5",
+            secondary: "#006b5f",        /* Aqua/Teal */
+            "secondary-container": "#76f4e0",
+            background: "#f8f9fa",
+            surface: "#ffffff",
+            "on-surface": "#191c1d",
+            "on-surface-variant": "#424751",
+            "outline-variant": "#c2c6d2"
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            headline: ["Montserrat", "sans-serif"]
+          },
+          borderRadius: {
+            large: "24px",
+            medium: "16px"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="min-h-screen flex flex-col font-sans text-on-surface">
+
+  <!-- Desktop Navbar -->
+  <header class="hidden md:flex justify-between items-center px-10 w-full h-16 fixed top-0 z-50 bg-white/95 backdrop-blur-md shadow-nav">
+    <div class="font-headline text-2xl font-bold text-primary">Verano Felinos</div>
+    <div class="flex items-center gap-4 text-primary">
+      <span class="material-symbols-outlined cursor-pointer">notifications</span>
+      <span class="material-symbols-outlined cursor-pointer">account_circle</span>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-grow pt-8 md:pt-28 pb-24 px-4 md:px-0 max-w-4xl mx-auto w-full">
+    <form id="enrollmentForm" enctype="multipart/form-data">
+      
+      <!-- Stepper / Indicator -->
+      <div class="mb-8 flex items-center justify-between max-w-2xl mx-auto px-2">
+        <div class="flex flex-col items-center step-indicator" data-step="1">
+          <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">1</div>
+          <span class="text-xs mt-2 text-primary font-semibold">General</span>
+        </div>
+        <div class="h-[2px] flex-grow bg-outline-variant mx-2 md:mx-4 step-line" data-step-line="1"></div>
+        <div class="flex flex-col items-center step-indicator opacity-50" data-step="2">
+          <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-bold text-sm">2</div>
+          <span class="text-xs mt-2 text-on-surface-variant">Salud</span>
+        </div>
+        <div class="h-[2px] flex-grow bg-outline-variant mx-2 md:mx-4 step-line" data-step-line="2"></div>
+        <div class="flex flex-col items-center step-indicator opacity-50" data-step="3">
+          <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-bold text-sm">3</div>
+          <span class="text-xs mt-2 text-on-surface-variant">Archivos</span>
+        </div>
+        <div class="h-[2px] flex-grow bg-outline-variant mx-2 md:mx-4 step-line" data-step-line="3"></div>
+        <div class="flex flex-col items-center step-indicator opacity-50" data-step="4">
+          <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-bold text-sm">4</div>
+          <span class="text-xs mt-2 text-on-surface-variant">Finalizar</span>
+        </div>
+      </div>
+
+      <!-- Loading / Submitting Overlay -->
+      <div id="loadingOverlay" class="fixed inset-0 loading-overlay z-[100] flex flex-col items-center justify-center hidden">
+        <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <h2 class="font-headline text-lg font-bold text-primary mt-4">Procesando Inscripción</h2>
+        <p class="text-sm text-on-surface-variant mt-2 px-6 text-center">Subiendo archivos a Google Drive y guardando datos en Google Sheets...</p>
+      </div>
+
+      <!-- WIZARD CARDS -->
+      <div id="wizardCardContainer">
+        
+        <!-- STEP 1: GENERAL INFO -->
+        <div id="stepCard1" class="step-card bg-surface p-6 md:p-8 rounded-large shadow-premium border border-gray-100">
+          <div class="mb-6">
+            <span class="text-xs font-semibold text-primary uppercase tracking-wider">Paso 1 de 4</span>
+            <h2 class="font-headline text-2xl font-bold mt-1 text-primary">Datos del Inscrito</h2>
+            <p class="text-sm text-on-surface-variant mt-1">Ingresa los datos generales del participante y tutor responsable.</p>
+          </div>
+
+          <div class="space-y-5">
+            <!-- Sede / Location Select -->
+            <div class="relative floating-label-input">
+              <select name="sede_id" id="sede_id" required class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium text-on-surface">
+                <option value="" disabled selected></option>
+                <option value="SEDE-NORTE">Sede Norte (Instalaciones Deportivas Norte)</option>
+                <option value="SEDE-SUR">Sede Sur (Centro de Alto Rendimiento Sur)</option>
+                <option value="SEDE-PONIENTE">Sede Poniente (Polideportivo Poniente)</option>
+              </select>
+              <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="sede_id">
+                Sede de Inscripción *
+              </label>
+            </div>
+
+            <!-- Child Name -->
+            <div class="relative floating-label-input">
+              <input type="text" name="child_name" id="child_name" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
+              <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="child_name">
+                Nombre Completo del Menor *
+              </label>
+            </div>
+
+            <!-- Child Age -->
+            <div class="relative floating-label-input">
+              <input type="number" name="child_age" id="child_age" min="4" max="17" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
+              <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="child_age">
+                Edad (Años) *
+              </label>
+            </div>
+
+            <div class="border-t border-gray-100 pt-4">
+              <h3 class="font-headline text-md font-semibold text-primary mb-3">Información del Tutor Responsable</h3>
+              
+              <div class="space-y-5">
+                <!-- Tutor Name -->
+                <div class="relative floating-label-input">
+                  <input type="text" name="tutor_name" id="tutor_name" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
+                  <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="tutor_name">
+                    Nombre Completo del Tutor *
+                  </label>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <!-- Tutor Phone -->
+                  <div class="relative floating-label-input">
+                    <input type="tel" name="tutor_phone" id="tutor_phone" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
+                    <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="tutor_phone">
+                      Teléfono de Contacto *
+                    </label>
+                  </div>
+
+                  <!-- Tutor Email -->
+                  <div class="relative floating-label-input">
+                    <input type="email" name="tutor_email" id="tutor_email" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
+                    <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="tutor_email">
+                      Correo Electrónico *
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Navigation inside card -->
+          <div class="mt-8 flex justify-end">
+            <button type="button" onclick="goToStep(2)" class="px-8 py-3 rounded-full bg-primary text-white hover:bg-primary-container font-semibold flex items-center gap-2 shadow-md hover:scale-105 active:scale-95 transition-all">
+              Siguiente
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 2: MEDICAL INFO -->
+        <div id="stepCard2" class="step-card bg-surface p-6 md:p-8 rounded-large shadow-premium border border-gray-100 hidden">
+          <div class="mb-6">
+            <span class="text-xs font-semibold text-secondary uppercase tracking-wider">Paso 2 de 4</span>
+            <h2 class="font-headline text-2xl font-bold mt-1 text-primary">Información Médica</h2>
+            <p class="text-sm text-on-surface-variant mt-1">Indica aspectos importantes de salud para garantizar el bienestar del menor.</p>
+          </div>
+
+          <div class="space-y-6">
+            <!-- Blood Type -->
+            <div class="relative floating-label-input">
+              <select name="blood_type" id="blood_type" required class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium text-on-surface">
+                <option value="" disabled selected></option>
+                <option value="O+">O Positivo (O+)</option>
+                <option value="O-">O Negativo (O-)</option>
+                <option value="A+">A Positivo (A+)</option>
+                <option value="A-">A Negativo (A-)</option>
+                <option value="B+">B Positivo (B+)</option>
+                <option value="B-">B Negativo (B-)</option>
+                <option value="AB+">AB Positivo (AB+)</option>
+                <option value="AB-">AB Negativo (AB-)</option>
+              </select>
+              <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="blood_type">
+                Grupo Sanguíneo *
+              </label>
+            </div>
+
+            <!-- Allergies Chips Selector -->
+            <div>
+              <label class="block text-sm font-semibold text-primary mb-2">Alergias o Condiciones Médicas Comunes</label>
+              <p class="text-xs text-on-surface-variant mb-3">Selecciona todas las que apliquen al inscrito:</p>
+              
+              <div class="flex flex-wrap gap-2" id="allergiesChipsContainer">
+                <button type="button" class="px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-100 transition-all" onclick="toggleAllergyChip(this, 'Asma')">Asma</button>
+                <button type="button" class="px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-100 transition-all" onclick="toggleAllergyChip(this, 'Diabetes')">Diabetes</button>
+                <button type="button" class="px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-100 transition-all" onclick="toggleAllergyChip(this, 'Epilepsia')">Epilepsia</button>
+                <button type="button" class="px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-100 transition-all" onclick="toggleAllergyChip(this, 'Intolerancia Lactosa')">Intolerancia Lactosa</button>
+                <button type="button" class="px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-100 transition-all" onclick="toggleAllergyChip(this, 'Alergia al polen')">Alergia al polen</button>
+                <button type="button" class="px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-100 transition-all" onclick="toggleAllergyChip(this, 'Picaduras de abejas')">Picaduras de abejas</button>
+                <button type="button" class="px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-100 transition-all" onclick="toggleAllergyChip(this, 'Celíaco')">Celíaco</button>
+                <button type="button" class="px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-100 transition-all" onclick="toggleAllergyChip(this, 'Alergia Maní')">Alergia Maní</button>
+                <button type="button" class="px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-100 transition-all" onclick="toggleAllergyChip(this, 'Dermatitis')">Dermatitis</button>
+              </div>
+
+              <!-- Hidden input to hold selected values as comma-separated -->
+              <input type="hidden" name="allergies" id="allergiesInput" value="" />
+            </div>
+
+            <!-- Critical Observations Textarea -->
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="material-symbols-outlined text-secondary">edit_note</span>
+                <label class="block text-sm font-semibold text-primary" for="medical_observations">Observaciones Críticas / Medicamentos en uso</label>
+              </div>
+              <textarea name="medical_observations" id="medical_observations" maxlength="500" class="w-full h-32 p-4 rounded-xl border border-gray-300 focus:border-secondary focus:ring-0 text-on-surface transition-all placeholder:text-gray-400 custom-scrollbar resize-none text-sm" placeholder="Describa tratamientos activos, dosis de medicamentos o instrucciones de emergencia aquí..."></textarea>
+              <div class="text-right text-xs text-on-surface-variant mt-1" id="charsCount">0 / 500 caracteres</div>
+            </div>
+          </div>
+
+          <!-- Bottom Navigation -->
+          <div class="mt-8 flex justify-between">
+            <button type="button" onclick="goToStep(1)" class="px-6 py-3 rounded-full text-on-surface-variant hover:bg-gray-100 font-semibold flex items-center gap-2 transition-all active:scale-95">
+              <span class="material-symbols-outlined">arrow_back</span>
+              Atrás
+            </button>
+            <button type="button" onclick="goToStep(3)" class="px-8 py-3 rounded-full bg-primary text-white hover:bg-primary-container font-semibold flex items-center gap-2 shadow-md hover:scale-105 active:scale-95 transition-all">
+              Siguiente
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 3: DOCUMENTATION & PHOTO -->
+        <div id="stepCard3" class="step-card bg-surface p-6 md:p-8 rounded-large shadow-premium border border-gray-100 hidden">
+          <div class="mb-6">
+            <span class="text-xs font-semibold text-primary uppercase tracking-wider">Paso 3 de 4</span>
+            <h2 class="font-headline text-2xl font-bold mt-1 text-primary">Archivos y Seguridad</h2>
+            <p class="text-sm text-on-surface-variant mt-1">Carga los documentos del menor y configura los autorizados para recogerlo.</p>
+          </div>
+
+          <div class="space-y-6">
+            
+            <!-- Document Uploads (CURP & INE) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- CURP File -->
+              <div class="border-2 border-dashed border-outline-variant p-4 rounded-medium hover:bg-gray-50 cursor-pointer relative transition-all group flex flex-col items-center text-center justify-center min-h-[140px]" id="curpDropZone">
+                <input type="file" name="doc_curp" id="doc_curp" required accept="image/*,application/pdf" class="hidden" onchange="handleFileSelected(this, 'curpStatus')" />
+                <div class="flex flex-col items-center" id="curpPrompt">
+                  <span class="material-symbols-outlined text-primary text-3xl mb-1 group-hover:scale-110 transition-all">description</span>
+                  <span class="text-xs font-semibold text-primary">Cargar CURP (PDF/Imagen) *</span>
+                  <span class="text-[10px] text-on-surface-variant mt-1">Obligatorio</span>
+                </div>
+                <div class="hidden flex flex-col items-center w-full" id="curpStatus">
+                  <span class="material-symbols-outlined text-secondary text-3xl mb-1">check_circle</span>
+                  <span class="text-xs font-semibold text-on-surface max-w-[150px] truncate" id="curpFilename">Archivo cargado</span>
+                  <button type="button" class="text-[10px] text-red-600 font-semibold mt-2 hover:underline" onclick="clearUploadedFile('doc_curp', 'curpDropZone', 'curpPrompt', 'curpStatus', event)">Eliminar</button>
+                </div>
+              </div>
+
+              <!-- INE File -->
+              <div class="border-2 border-dashed border-outline-variant p-4 rounded-medium hover:bg-gray-50 cursor-pointer relative transition-all group flex flex-col items-center text-center justify-center min-h-[140px]" id="ineDropZone">
+                <input type="file" name="doc_ine" id="doc_ine" required accept="image/*,application/pdf" class="hidden" onchange="handleFileSelected(this, 'ineStatus')" />
+                <div class="flex flex-col items-center" id="inePrompt">
+                  <span class="material-symbols-outlined text-primary text-3xl mb-1 group-hover:scale-110 transition-all">badge</span>
+                  <span class="text-xs font-semibold text-primary">Cargar INE del Tutor (PDF/Imagen) *</span>
+                  <span class="text-[10px] text-on-surface-variant mt-1">Obligatorio</span>
+                </div>
+                <div class="hidden flex flex-col items-center w-full" id="ineStatus">
+                  <span class="material-symbols-outlined text-secondary text-3xl mb-1">check_circle</span>
+                  <span class="text-xs font-semibold text-on-surface max-w-[150px] truncate" id="ineFilename">Archivo cargado</span>
+                  <button type="button" class="text-[10px] text-red-600 font-semibold mt-2 hover:underline" onclick="clearUploadedFile('doc_ine', 'ineDropZone', 'inePrompt', 'ineStatus', event)">Eliminar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Participant Photo Upload Card -->
+            <div class="border-t border-gray-100 pt-4">
+              <h3 class="font-headline text-md font-semibold text-primary mb-3">Foto del Participante *</h3>
+              <div class="border-2 border-dashed border-outline-variant p-6 rounded-large hover:bg-gray-50 cursor-pointer relative transition-all group flex flex-col items-center text-center justify-center overflow-hidden h-44" id="childPhotoDropZone" onclick="document.getElementById('child_photo').click()">
+                <input type="file" name="child_photo" id="child_photo" required accept="image/*" class="hidden" onchange="handlePhotoSelected(this, 'childPhotoDropZone', 'childPhotoPrompt', 'childPhotoPreview')" />
+                
+                <img id="childPhotoPreview" class="absolute inset-0 w-full h-full object-cover hidden" src="" />
+                
+                <div class="flex flex-col items-center relative z-10 bg-white/80 p-3 rounded-lg backdrop-blur-sm shadow-sm group-hover:scale-102 transition-transform" id="childPhotoPrompt">
+                  <span class="material-symbols-outlined text-primary text-4xl mb-1">photo_camera</span>
+                  <span class="text-xs font-semibold text-primary">Haz clic para subir foto del Rostro *</span>
+                  <span class="text-[10px] text-on-surface-variant mt-1">Imagen JPG o PNG</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Authorized Guardians Section (Asymmetric Cards Layout) -->
+            <div class="border-t border-gray-100 pt-4">
+              <h3 class="font-headline text-md font-semibold text-primary mb-1">Personas Autorizadas</h3>
+              <p class="text-xs text-on-surface-variant mb-4">Ingresa nombres, números telefónicos y carga fotos de 3 personas autorizadas para recoger al inscrito. Las 3 son requeridas.</p>
+              
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Guardian 1 -->
+                <div class="bg-gray-50 border border-gray-200 p-4 rounded-medium flex flex-col justify-between">
+                  <div>
+                    <span class="text-xs font-bold text-secondary uppercase mb-2 block">Autorizado 1</span>
+                    <input type="text" name="auth1_name" required placeholder="Nombre Completo *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-2 focus:ring-1 focus:ring-primary focus:border-primary" />
+                    <input type="tel" name="auth1_phone" required placeholder="Teléfono *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-3 focus:ring-1 focus:ring-primary focus:border-primary" />
+                  </div>
+                  
+                  <div class="border border-dashed border-gray-300 rounded-lg p-2 hover:bg-gray-100 cursor-pointer relative h-24 flex items-center justify-center text-center overflow-hidden" onclick="document.getElementById('auth1_photo').click()">
+                    <input type="file" name="auth1_photo" id="auth1_photo" required accept="image/*" class="hidden" onchange="handlePhotoSelected(this, this.parentElement, null, null)" />
+                    <img class="absolute inset-0 w-full h-full object-cover hidden" />
+                    <div class="relative z-10 flex flex-col items-center">
+                      <span class="material-symbols-outlined text-gray-500 text-lg">add_a_photo</span>
+                      <span class="text-[10px] text-gray-500 font-medium">Subir Foto *</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Guardian 2 -->
+                <div class="bg-gray-50 border border-gray-200 p-4 rounded-medium flex flex-col justify-between">
+                  <div>
+                    <span class="text-xs font-bold text-secondary uppercase mb-2 block">Autorizado 2</span>
+                    <input type="text" name="auth2_name" required placeholder="Nombre Completo *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-2 focus:ring-1 focus:ring-primary focus:border-primary" />
+                    <input type="tel" name="auth2_phone" required placeholder="Teléfono *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-3 focus:ring-1 focus:ring-primary focus:border-primary" />
+                  </div>
+                  
+                  <div class="border border-dashed border-gray-300 rounded-lg p-2 hover:bg-gray-100 cursor-pointer relative h-24 flex items-center justify-center text-center overflow-hidden" onclick="document.getElementById('auth2_photo').click()">
+                    <input type="file" name="auth2_photo" id="auth2_photo" required accept="image/*" class="hidden" onchange="handlePhotoSelected(this, this.parentElement, null, null)" />
+                    <img class="absolute inset-0 w-full h-full object-cover hidden" />
+                    <div class="relative z-10 flex flex-col items-center">
+                      <span class="material-symbols-outlined text-gray-500 text-lg">add_a_photo</span>
+                      <span class="text-[10px] text-gray-500 font-medium">Subir Foto *</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Guardian 3 -->
+                <div class="bg-gray-50 border border-gray-200 p-4 rounded-medium flex flex-col justify-between">
+                  <div>
+                    <span class="text-xs font-bold text-secondary uppercase mb-2 block">Autorizado 3</span>
+                    <input type="text" name="auth3_name" required placeholder="Nombre Completo *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-2 focus:ring-1 focus:ring-primary focus:border-primary" />
+                    <input type="tel" name="auth3_phone" required placeholder="Teléfono *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-3 focus:ring-1 focus:ring-primary focus:border-primary" />
+                  </div>
+                  
+                  <div class="border border-dashed border-gray-300 rounded-lg p-2 hover:bg-gray-100 cursor-pointer relative h-24 flex items-center justify-center text-center overflow-hidden" onclick="document.getElementById('auth3_photo').click()">
+                    <input type="file" name="auth3_photo" id="auth3_photo" required accept="image/*" class="hidden" onchange="handlePhotoSelected(this, this.parentElement, null, null)" />
+                    <img class="absolute inset-0 w-full h-full object-cover hidden" />
+                    <div class="relative z-10 flex flex-col items-center">
+                      <span class="material-symbols-outlined text-gray-500 text-lg">add_a_photo</span>
+                      <span class="text-[10px] text-gray-500 font-medium">Subir Foto *</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom Navigation -->
+          <div class="mt-8 flex justify-between">
+            <button type="button" onclick="goToStep(2)" class="px-6 py-3 rounded-full text-on-surface-variant hover:bg-gray-100 font-semibold flex items-center gap-2 transition-all active:scale-95">
+              <span class="material-symbols-outlined">arrow_back</span>
+              Atrás
+            </button>
+            <button type="button" onclick="goToStep(4)" class="px-8 py-3 rounded-full bg-primary text-white hover:bg-primary-container font-semibold flex items-center gap-2 shadow-md hover:scale-105 active:scale-95 transition-all">
+              Siguiente
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 4: RULES VALIDATION & CONFIRMATION -->
+        <div id="stepCard4" class="step-card bg-surface p-6 md:p-8 rounded-large shadow-premium border border-gray-100 hidden">
+          <div class="mb-6">
+            <span class="text-xs font-semibold text-secondary uppercase tracking-wider">Paso 4 de 4</span>
+            <h2 class="font-headline text-2xl font-bold mt-1 text-primary">Validación de Reglamento</h2>
+            <p class="text-sm text-on-surface-variant mt-1">Revisa el reglamento básico e indica tu conformidad para finalizar.</p>
+          </div>
+
+          <div class="space-y-6">
+            <!-- Rules Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-4 rounded-lg bg-gray-50 border-l-4 border-primary">
+                <h4 class="text-xs font-bold text-primary mb-1">Horarios y Asistencia</h4>
+                <p class="text-xs text-on-surface-variant">La puntualidad es obligatoria. Retrasos mayores a 15 minutos requieren justificación médica.</p>
+              </div>
+              <div class="p-4 rounded-lg bg-gray-50 border-l-4 border-secondary">
+                <h4 class="text-xs font-bold text-secondary mb-1">Equipamiento</h4>
+                <p class="text-xs text-on-surface-variant">Uso obligatorio del uniforme oficial y calzado deportivo adecuado para superficies sintéticas.</p>
+              </div>
+              <div class="p-4 rounded-lg bg-gray-50 border-l-4 border-yellow-600">
+                <h4 class="text-xs font-bold text-yellow-700 mb-1">Conducta</h4>
+                <p class="text-xs text-on-surface-variant">Respeto absoluto hacia entrenadores y compañeros. Cero tolerancia al acoso.</p>
+              </div>
+              <div class="p-4 rounded-lg bg-gray-50 border-l-4 border-gray-500">
+                <h4 class="text-xs font-bold text-gray-700 mb-1">Salud y Seguridad</h4>
+                <p class="text-xs text-on-surface-variant">Notificar inmediatamente cualquier malestar físico o lesión durante las sesiones.</p>
+              </div>
+            </div>
+
+            <!-- Cost warning -->
+            <div class="bg-red-50 p-4 rounded-xl border border-red-100 flex items-start gap-3">
+              <span class="material-symbols-outlined text-red-600" style="font-variation-settings: 'FILL' 1;">warning</span>
+              <div>
+                <h4 class="text-xs font-bold text-red-700">Advertencia de Re-edición</h4>
+                <p class="text-xs text-on-surface-variant mt-1">Una vez confirmada la inscripción, la modificación posterior de datos biográficos o de contacto incurre en un costo administrativo de <strong>$15.00 USD</strong>. Por favor, verifique que toda la información sea correcta antes de proceder.</p>
+              </div>
+            </div>
+
+            <!-- Scrollable Terms -->
+            <div class="border border-outline-variant rounded-lg p-4 bg-gray-50/50 h-32 overflow-y-auto scrollbar-hide text-xs text-on-surface-variant space-y-2">
+              <p><strong>I. OBJETO DEL REGLAMENTO:</strong> El presente documento establece las normas de convivencia y operación para la temporada Verano Felinos 2026.</p>
+              <p><strong>II. RESPONSABILIDAD CIVIL:</strong> La organización no se hace responsable por la pérdida de objetos personales dentro de las instalaciones deportivas.</p>
+              <p><strong>III. CANCELACIONES:</strong> No se realizarán reembolsos parciales o totales una vez iniciado el ciclo de actividades.</p>
+              <p><strong>IV. DERECHOS DE IMAGEN:</strong> El tutor responsable autoriza el uso de imágenes y fotos del menor inscrito únicamente para fines promocionales e informativos del club.</p>
+            </div>
+
+            <!-- Checkbox -->
+            <label class="flex items-center gap-4 p-4 rounded-xl bg-primary/5 border border-primary/10 cursor-pointer transition-all active:scale-[0.99]" id="confirmBox">
+              <input type="checkbox" id="rulesCheck" required class="w-6 h-6 rounded border-outline-variant text-primary focus:ring-primary-container transition-all cursor-pointer" />
+              <span class="text-xs font-semibold text-on-surface select-none">
+                He leído y acepto los términos y condiciones del reglamento de Verano Felinos 2026.
+              </span>
+            </label>
+          </div>
+
+          <!-- Bottom Navigation -->
+          <div class="mt-8 flex justify-between">
+            <button type="button" onclick="goToStep(3)" class="px-6 py-3 rounded-full text-on-surface-variant hover:bg-gray-100 font-semibold flex items-center gap-2 transition-all active:scale-95">
+              <span class="material-symbols-outlined">arrow_back</span>
+              Atrás
+            </button>
+            <button type="submit" id="submitBtn" class="px-10 py-4 rounded-full bg-gray-400 text-white font-semibold flex items-center gap-3 transition-all cursor-not-allowed" disabled>
+              <span>Finalizar Inscripción</span>
+              <span class="material-symbols-outlined">check_circle</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SUCCESS SCREEN -->
+        <div id="successCard" class="bg-surface p-6 md:p-8 rounded-large shadow-premium border border-gray-100 hidden text-center flex flex-col items-center py-12">
+          <div class="w-20 h-20 bg-secondary/10 text-secondary rounded-full flex items-center justify-center mb-6">
+            <span class="material-symbols-outlined text-5xl" style="font-variation-settings: 'FILL' 1;">verified</span>
+          </div>
+          <h2 class="font-headline text-3xl font-bold text-primary mb-2">¡Inscripción Exitosa!</h2>
+          <p class="text-sm text-on-surface-variant max-w-md mb-6">La información ha sido registrada y los archivos se guardaron correctamente en Google Drive.</p>
+          
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-8 w-full max-w-sm">
+            <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Folio del Alumno</span>
+            <span class="font-headline text-2xl font-bold text-primary select-all" id="successFolio">VF-26-XXXXX</span>
+            <div class="border-t border-gray-200 my-3"></div>
+            <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Inscrito</span>
+            <span class="font-semibold text-sm text-on-surface" id="successChildName">Nombre del Menor</span>
+          </div>
+
+          <p class="text-xs text-on-surface-variant max-w-sm mb-6">Conserva este Folio. Con él podrás ingresar a tu perfil digital e iniciar el portal de actualización de documentos si es necesario.</p>
+          
+          <div class="flex gap-4">
+            <a href="/" class="px-8 py-3 rounded-full bg-primary text-white hover:bg-primary-container font-semibold transition-all active:scale-95">Inscribir Otro Alumno</a>
+          </div>
+        </div>
+
+      </div>
+
+    </form>
+  </main>
+
+  <!-- Mobile Bottom Menu bar -->
+  <nav class="md:hidden fixed bottom-0 w-full z-40 flex justify-around items-center px-4 py-3 bg-white shadow-[0px_-4px_20px_rgba(0,0,0,0.08)] rounded-t-xl">
+    <div class="flex flex-col items-center justify-center bg-primary/10 text-primary rounded-full px-5 py-1">
+      <span class="material-symbols-outlined">edit_document</span>
+      <span class="text-[10px] font-semibold">Registro</span>
+    </div>
+    <div class="flex flex-col items-center justify-center text-on-surface-variant opacity-60">
+      <span class="material-symbols-outlined">badge</span>
+      <span class="text-[10px]">Portal</span>
+    </div>
+  </nav>
+
+  <!-- Decorative Background Elements -->
+  <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-[-1] overflow-hidden opacity-50">
+    <div class="absolute top-[10%] right-[-5%] w-[350px] h-[350px] bg-primary/5 rounded-full blur-[80px]"></div>
+    <div class="absolute bottom-[20%] left-[-10%] w-[400px] h-[400px] bg-secondary/5 rounded-full blur-[100px]"></div>
+  </div>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    // Handles stepping
+    let currentStep = 1;
+
+    // Checkbox and submit enabling
+    const checkbox = document.getElementById('rulesCheck');
+    const submitBtn = document.getElementById('submitBtn');
+    const confirmBox = document.getElementById('confirmBox');
+
+    checkbox.addEventListener('change', function() {
+      if (this.checked) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+        submitBtn.classList.add('bg-primary', 'hover:bg-primary-container', 'hover:scale-105', 'active:scale-95');
+        confirmBox.classList.add('bg-primary/10', 'border-primary');
+      } else {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+        submitBtn.classList.remove('bg-primary', 'hover:bg-primary-container', 'hover:scale-105', 'active:scale-95');
+        confirmBox.classList.remove('bg-primary/10', 'border-primary');
+      }
+    });
+
+    // Character counter for observations
+    const textarea = document.getElementById('medical_observations');
+    const charsCount = document.getElementById('charsCount');
+    textarea.addEventListener('input', () => {
+      charsCount.textContent = `${textarea.value.length} / 500 caracteres`;
+    });
+
+    // Step navigator function
+    function goToStep(step) {
+      // 1. If going forward, validate current step fields
+      if (step > currentStep) {
+        const isValid = validateStepFields(currentStep);
+        if (!isValid) return; // Stop if validation fails
+      }
+
+      // Hide all step cards
+      document.querySelectorAll('.step-card').forEach(card => card.classList.add('hidden'));
+      
+      // Show target step card
+      document.getElementById(`stepCard${step}`).classList.remove('hidden');
+      
+      currentStep = step;
+      updateStepIndicators(step);
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Step validation helper
+    function validateStepFields(step) {
+      if (step === 1) {
+        const sede = document.getElementById('sede_id');
+        const childName = document.getElementById('child_name');
+        const childAge = document.getElementById('child_age');
+        const tutorName = document.getElementById('tutor_name');
+        const tutorPhone = document.getElementById('tutor_phone');
+        const tutorEmail = document.getElementById('tutor_email');
+
+        if (!sede.value) return showValidationError('Selecciona una sede.');
+        if (!childName.value.trim()) return showValidationError('Ingresa el nombre completo del menor.');
+        
+        const ageVal = parseInt(childAge.value, 10);
+        if (isNaN(ageVal) || ageVal < 4 || ageVal > 17) {
+          return showValidationError('La edad del menor debe estar entre 4 y 17 años.');
+        }
+
+        if (!tutorName.value.trim()) return showValidationError('Ingresa el nombre del tutor.');
+        if (!tutorPhone.value.trim()) return showValidationError('Ingresa un teléfono del tutor.');
+        if (!tutorEmail.value.trim() || !tutorEmail.value.includes('@')) {
+          return showValidationError('Ingresa un correo electrónico de contacto válido.');
+        }
+      }
+      
+      if (step === 2) {
+        const blood = document.getElementById('blood_type');
+        if (!blood.value) return showValidationError('Selecciona el grupo sanguíneo.');
+      }
+
+      if (step === 3) {
+        // CURP, INE and Child photo are required
+        const curp = document.getElementById('doc_curp');
+        const ine = document.getElementById('doc_ine');
+        const childPhoto = document.getElementById('child_photo');
+        
+        if (curp.files.length === 0) return showValidationError('Debes cargar el CURP del menor.');
+        if (ine.files.length === 0) return showValidationError('Debes cargar la identificación oficial del tutor (INE).');
+        if (childPhoto.files.length === 0) return showValidationError('Debes subir la foto del menor.');
+        
+        // 3 Authorized guardians name, phone, and photos are required
+        for (let i = 1; i <= 3; i++) {
+          const authName = document.getElementsByName(`auth${i}_name`)[0];
+          const authPhone = document.getElementsByName(`auth${i}_phone`)[0];
+          const authPhoto = document.getElementById(`auth${i}_photo`);
+          
+          if (!authName.value.trim()) return showValidationError(`Ingresa el nombre completo del Autorizado ${i}.`);
+          if (!authPhone.value.trim()) return showValidationError(`Ingresa el teléfono del Autorizado ${i}.`);
+          if (authPhoto.files.length === 0) return showValidationError(`Debes subir la foto del Autorizado ${i}.`);
+        }
+      }
+
+      return true;
+    }
+
+    function showValidationError(message) {
+      alert(message);
+      return false;
+    }
+
+    // Step indicators update
+    function updateStepIndicators(activeStep) {
+      document.querySelectorAll('.step-indicator').forEach(ind => {
+        const stepNum = parseInt(ind.getAttribute('data-step'), 10);
+        const circle = ind.querySelector('div');
+        const span = ind.querySelector('span');
+
+        if (stepNum < activeStep) {
+          // Completed
+          ind.classList.remove('opacity-50');
+          circle.className = "w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-sm";
+          circle.innerHTML = `<span class="material-symbols-outlined text-sm font-bold">check</span>`;
+          span.className = "text-xs mt-2 text-secondary font-semibold";
+        } else if (stepNum === activeStep) {
+          // Active
+          ind.classList.remove('opacity-50');
+          circle.className = "w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm ring-4 ring-primary/20";
+          circle.innerHTML = stepNum;
+          span.className = "text-xs mt-2 text-primary font-semibold";
+        } else {
+          // Unreached
+          ind.classList.add('opacity-50');
+          circle.className = "w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-bold text-sm";
+          circle.innerHTML = stepNum;
+          span.className = "text-xs mt-2 text-on-surface-variant";
+        }
+      });
+
+      // Update lines
+      document.querySelectorAll('.step-line').forEach(line => {
+        const lineNum = parseInt(line.getAttribute('data-step-line'), 10);
+        if (lineNum < activeStep) {
+          line.classList.remove('bg-outline-variant');
+          line.classList.add('bg-secondary');
+        } else {
+          line.classList.remove('bg-secondary');
+          line.classList.add('bg-outline-variant');
+        }
+      });
+    }
+
+    // Allergies chips toggle
+    const selectedAllergies = new Set();
+    function toggleAllergyChip(button, name) {
+      button.classList.toggle('chip-active');
+      
+      if (selectedAllergies.has(name)) {
+        selectedAllergies.delete(name);
+      } else {
+        selectedAllergies.add(name);
+      }
+      
+      document.getElementById('allergiesInput').value = Array.from(selectedAllergies).join(', ');
+      
+      // Bounce effect
+      button.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        button.style.transform = 'scale(1)';
+      }, 100);
+    }
+
+    // Handles standard files (CURP / INE)
+    function handleFileSelected(input, statusDivId) {
+      const file = input.files[0];
+      const dropZone = input.parentElement;
+      const promptDiv = dropZone.querySelector('div:not(.hidden)');
+      const statusDiv = document.getElementById(statusDivId);
+      const filenameSpan = statusDiv.querySelector('span:last-of-type');
+
+      if (file) {
+        filenameSpan.textContent = file.name;
+        promptDiv.classList.add('hidden');
+        statusDiv.classList.remove('hidden');
+        dropZone.classList.remove('border-dashed');
+        dropZone.classList.add('border-solid', 'border-secondary', 'bg-secondary/5');
+      }
+    }
+
+    function clearUploadedFile(inputId, dropZoneId, promptId, statusId, event) {
+      event.stopPropagation();
+      event.preventDefault();
+      
+      const input = document.getElementById(inputId);
+      input.value = ""; // Reset
+      
+      const dropZone = document.getElementById(dropZoneId);
+      const promptDiv = document.getElementById(promptId);
+      const statusDiv = document.getElementById(statusId);
+      
+      statusDiv.classList.add('hidden');
+      promptDiv.classList.remove('hidden');
+      dropZone.classList.remove('border-solid', 'border-secondary', 'bg-secondary/5');
+      dropZone.classList.add('border-dashed');
+    }
+
+    // Handles photo fields (Child Photo & Authorized Photos)
+    function handlePhotoSelected(input, dropZone, promptElement, previewElement) {
+      const file = input.files[0];
+      
+      // If we are dealing with authorized photos (where we don't pass prompt/preview as arguments, we find them inside parent)
+      const prompt = promptElement || dropZone.querySelector('.z-10');
+      const preview = previewElement || dropZone.querySelector('img');
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          preview.src = event.target.result;
+          preview.classList.remove('hidden');
+          if (prompt) prompt.classList.add('hidden');
+          dropZone.style.border = 'none';
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // Intercept form submit and do AJAX
+    const form = document.getElementById('enrollmentForm');
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Final confirmation validation
+      if (!checkbox.checked) {
+        alert('Debes aceptar los términos y condiciones.');
+        return;
+      }
+
+      const formData = new FormData(form);
+      const loading = document.getElementById('loadingOverlay');
+      
+      // Show loading
+      loading.classList.remove('hidden');
+
+      fetch('/api/v1/enroll', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(result => {
+        loading.classList.add('hidden');
+        
+        if (result.success) {
+          // Hide all step cards
+          document.querySelectorAll('.step-card').forEach(card => card.classList.add('hidden'));
+          
+          // Populate success card details
+          document.getElementById('successFolio').textContent = result.data.folioId;
+          document.getElementById('successChildName').textContent = result.data.childName;
+          
+          // Show success card
+          document.getElementById('successCard').classList.remove('hidden');
+          
+          // Hide indicators
+          document.querySelector('.mb-8').classList.add('hidden');
+          
+          // Scroll to top
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          alert(`Error: ${result.message || 'No se pudo procesar la inscripción.'}`);
+        }
+      })
+      .catch(err => {
+        loading.classList.add('hidden');
+        console.error('Submit Error:', err);
+        alert('Ocurrió un error en el servidor al enviar la inscripción. Por favor intenta de nuevo.');
+      });
+    });
+  </script>
+</body>
+</html>

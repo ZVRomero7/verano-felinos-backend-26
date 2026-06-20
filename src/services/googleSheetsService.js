@@ -1,0 +1,167 @@
+import { google } from 'googleapis';
+
+/**
+ * Instantiates the Google Sheets client. Returns null if credentials are not configured.
+ */
+const getSheetsClient = () => {
+  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+  const privateKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+
+  if (!email || !privateKey) {
+    return null;
+  }
+
+  try {
+    const formattedKey = privateKey.replace(/\\n/g, '\n');
+    const auth = new google.auth.JWT(
+      email,
+      null,
+      formattedKey,
+      ['https://www.googleapis.com/auth/spreadsheets']
+    );
+    return google.sheets({ version: 'v4', auth });
+  } catch (error) {
+    console.error('[Google Sheets Auth Error]: Failed to create client:', error.message);
+    return null;
+  }
+};
+
+/**
+ * Appends a new enrollment record row to the Google Sheet.
+ * 
+ * @param {Object} rowData - Form values and Drive file URLs
+ */
+export const appendEnrollmentRow = async (rowData) => {
+  const sheets = getSheetsClient();
+  const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+
+  // Values in order of columns in Google Sheets
+  const values = [
+    [
+      rowData.folioId,
+      rowData.timestamp,
+      rowData.sedeId,
+      rowData.childName,
+      rowData.childAge,
+      rowData.tutorName,
+      rowData.tutorPhone,
+      rowData.tutorEmail,
+      rowData.bloodType,
+      rowData.allergies || 'Ninguna',
+      rowData.medicalObservations || 'Ninguna',
+      rowData.docCurpUrl || '',
+      rowData.docIneUrl || '',
+      rowData.childPhotoUrl || '',
+      rowData.auth1Name || '',
+      rowData.auth1Phone || '',
+      rowData.auth1PhotoUrl || '',
+      rowData.auth2Name || '',
+      rowData.auth2Phone || '',
+      rowData.auth2PhotoUrl || '',
+      rowData.auth3Name || '',
+      rowData.auth3Phone || '',
+      rowData.auth3PhotoUrl || '',
+      rowData.status || 'Pendiente'
+    ]
+  ];
+
+  // Run in Mock mode if Sheets client or Sheet ID is not set
+  if (!sheets || !spreadsheetId) {
+    console.log(`\n📊  [Google Sheets Mock Mode]: Row appending simulation`);
+    console.log(`Spreadsheet ID: ${spreadsheetId || 'NOT_CONFIGURED'}`);
+    console.log(`Row Data:`, values[0]);
+    console.log(`📊  [Google Sheets Mock Mode]: Completed row append simulation.\n`);
+    return { success: true, mockAppended: true };
+  }
+
+  try {
+    const response = await sheets.spreadsheets.values.append({
+      spreadsheetId,
+      range: 'A:Z', // Append to sheet starting from column A
+      valueInputOption: 'USER_ENTERED',
+      insertDataOption: 'INSERT_ROWS',
+      requestBody: {
+        values
+      }
+    });
+
+    console.log(`[Google Sheets Service]: Row appended successfully. Updated cells: ${response.data.updates.updatedCells}`);
+    return { success: true, updatedCells: response.data.updates.updatedCells };
+  } catch (error) {
+    console.error('[Google Sheets Service Error]: Failed to append row:', error.message);
+    throw error;
+  }
+};
+
+/**
+ * Fetches a participant row from Google Sheets by Folio ID.
+ */
+export const getRowByFolio = async (folioId) => {
+  const sheets = getSheetsClient();
+  const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+
+  if (!sheets || !spreadsheetId) {
+    console.log(`\n📊  [Google Sheets Mock Mode]: Fetching row simulation for folio: ${folioId}`);
+    return {
+      folioId,
+      childName: 'Mock Participant',
+      childAge: 10,
+      sedeId: 'SEDE-NORTE',
+      tutorName: 'Mock Tutor',
+      tutorPhone: '1234567890',
+      tutorEmail: 'tutor@mock.com',
+      bloodType: 'O+',
+      allergies: 'Ninguna',
+      medicalObservations: 'Ninguna',
+      status: 'Pendiente'
+    };
+  }
+
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: 'A:Z'
+    });
+    
+    const rows = response.data.values;
+    if (!rows || rows.length === 0) {
+      return null;
+    }
+    
+    // Find row where column 0 matches the folioId
+    const row = rows.find(r => r[0] === folioId);
+    if (!row) {
+      return null;
+    }
+
+    return {
+      folioId: row[0],
+      timestamp: row[1],
+      sedeId: row[2],
+      childName: row[3],
+      childAge: row[4],
+      tutorName: row[5],
+      tutorPhone: row[6],
+      tutorEmail: row[7],
+      bloodType: row[8],
+      allergies: row[9],
+      medicalObservations: row[10],
+      docCurpUrl: row[11],
+      docIneUrl: row[12],
+      childPhotoUrl: row[13],
+      auth1Name: row[14],
+      auth1Phone: row[15],
+      auth1PhotoUrl: row[16],
+      auth2Name: row[17],
+      auth2Phone: row[18],
+      auth2PhotoUrl: row[19],
+      auth3Name: row[20],
+      auth3Phone: row[21],
+      auth3PhotoUrl: row[22],
+      status: row[23]
+    };
+  } catch (error) {
+    console.error('[Google Sheets Service Error]: Failed to fetch row by folio:', error.message);
+    throw error;
+  }
+};

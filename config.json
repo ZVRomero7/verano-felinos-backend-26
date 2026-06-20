@@ -1,0 +1,38 @@
+{
+  "project": {
+    "name": "Verano Felinos Backend 2026",
+    "environment": "production",
+    "base_url": "https://veranofelinos.waimmersive.com"
+  },
+  "google_workspace": {
+    "drive_root_id": "1NaiQdN_Pxqg0ALWtTK_hED5uke6QG18o",
+    "subfolders": {
+      "database_folder": "01_BaseDatos",
+      "templates_folder": "01_Plantillas_Credenciales",
+      "dump_folder": "02_Dump_Sistema",
+      "pdf_output_folder": "03_Credenciales VeranoFelinos 2026"
+    }
+  },
+  "api_routes": {
+    "enrollment": {
+      "path": "/api/v1/enroll",
+      "method": "POST",
+      "description": "Recibe los datos del formulario de Stitch (multipart/form-data), sube los archivos a la carpeta dinámica en Drive y crea la fila en Google Sheets."
+    },
+    "virtual_profile": {
+      "path": "/perfil/:folio_id",
+      "method": "GET",
+      "description": "Renderiza la UI del perfil digital consultando los datos en tiempo real."
+    },
+    "edit_portal": {
+      "path": "/editar/:folio_id",
+      "method": "GET",
+      "description": "Renderiza el portal de edición web mostrando las miniaturas actuales para actualizar documentos o fotos."
+    },
+    "update_files": {
+      "path": "/api/v1/edit/:folio_id",
+      "method": "PUT",
+      "description": "Procesa la sustitución de archivos desde el portal de edición y actualiza el Google Sheet."
+    }
+  }
+}

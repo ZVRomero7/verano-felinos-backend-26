@@ -1,0 +1,21 @@
+{
+  "name": "verano-felinos-backend-2026",
+  "version": "1.0.0",
+  "description": "Backend server for Verano Felinos 2026",
+  "type": "module",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "googleapis": "^173.0.0",
+    "multer": "^2.2.0"
+  }
+}
