@@ -12,7 +12,7 @@ const getSheetsClient = () => {
   }
 
   try {
-    const formattedKey = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
+    const formattedKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY.replace(/\\n/g, '\n');
     const auth = new google.auth.JWT({
       email: email,
       key: formattedKey,
