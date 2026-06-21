@@ -39,6 +39,19 @@ app.use('/SVG', express.static(path.join(__dirname, '../SVG')));
 app.use('/api/v1', apiRouter);
 app.use('/', webRouter);
 
+// Global error handling middleware (e.g., to handle Multer LIMIT_FILE_SIZE)
+app.use((err, req, res, next) => {
+  console.error('[Global Error Handler]:', err);
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({
+      error: 'El tamaño de alguno de los archivos excede el límite máximo permitido de 15MB.'
+    });
+  }
+  return res.status(res.statusCode === 200 ? 400 : res.statusCode).json({
+    error: err.message || 'Ha ocurrido un error interno en el servidor.'
+  });
+});
+
 // Basic health check endpoint using config values
 app.get('/', (req, res) => {
   res.json({

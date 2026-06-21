@@ -1,5 +1,7 @@
 import { uploadEnrollmentFiles } from '../services/googleDriveService.js';
 import { appendEnrollmentRow } from '../services/googleSheetsService.js';
+import sharp from 'sharp';
+import path from 'path';
 
 /**
  * Generates a unique folio ID for the participant.
@@ -55,6 +57,41 @@ export const handleEnrollment = async (req, res) => {
 
     console.log(`[Enrollment Controller]: Processing enrollment for ${childName}. Assigned Folio: ${folioId}`);
 
+    // Compress image uploads on-the-fly using sharp
+    if (files) {
+      for (const fieldName in files) {
+        const fileArray = files[fieldName];
+        if (fileArray && fileArray.length > 0) {
+          const file = fileArray[0];
+          if (file && file.mimetype && file.mimetype.startsWith('image/')) {
+            try {
+              console.log(`[Sharp Compressor]: Compressing image field '${fieldName}' (${file.originalname}, initial size: ${file.size} bytes)`);
+              const compressedBuffer = await sharp(file.buffer)
+                .resize({ width: 1200, withoutEnlargement: true })
+                .jpeg({ quality: 80 })
+                .toBuffer();
+              
+              file.buffer = compressedBuffer;
+              file.size = compressedBuffer.length;
+              file.mimetype = 'image/jpeg';
+              
+              const ext = path.extname(file.originalname);
+              const base = path.basename(file.originalname, ext);
+              file.originalname = `${base}.jpg`;
+              
+              console.log(`[Sharp Compressor]: Compressed successfully. New size: ${file.size} bytes`);
+            } catch (sharpError) {
+              console.error(`[Sharp Compressor Error] Failed to compress image ${file.originalname}:`, sharpError.message);
+              return res.status(400).json({
+                success: false,
+                error: `Error al procesar la imagen del campo '${fieldName}': ${sharpError.message}`
+              });
+            }
+          }
+        }
+      }
+    }
+
     // Call Google Drive Service to create folder and upload files
     let fileUrls = {};
     if (files) {
@@ -105,7 +142,7 @@ export const handleEnrollment = async (req, res) => {
 
   } catch (error) {
     console.error('[Enrollment Controller Error]:', error);
-    return res.status(500).json({
+    return res.status(400).json({
       error: error.message
     });
   }
