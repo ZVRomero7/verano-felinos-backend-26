@@ -30,10 +30,11 @@ const getDriveClient = () => {
   }
 
   try {
+    const formattedKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY.replace(/^"|"$/g, '').replace(/\\n/g, '\n');
     const auth = new google.auth.JWT({
       email: email,
-      key: privateKey.replace(/\\n/g, '\n'),
-      private_key: privateKey.replace(/\\n/g, '\n'),
+      key: formattedKey,
+      private_key: formattedKey,
       scopes: ['https://www.googleapis.com/auth/drive']
     });
     const drive = google.drive({ version: 'v3', auth });

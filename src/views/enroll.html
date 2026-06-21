@@ -512,23 +512,50 @@
           </div>
 
           <div class="space-y-6">
-            <!-- Rules Grid -->
+            <!-- Rules Grid (Soft UI Cards) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="p-4 rounded-lg bg-gray-50 border-l-4 border-primary">
-                <h4 class="text-xs font-bold text-primary mb-1">Horarios y Asistencia</h4>
-                <p class="text-xs text-on-surface-variant">La puntualidad es obligatoria. Retrasos mayores a 15 minutos requieren justificación médica.</p>
+              <!-- Card 1 -->
+              <div class="bg-[#FFFFFF] p-5 rounded-[16px] shadow-[0_4px_16px_rgba(0,0,0,0.03)] transition-all duration-300 hover:scale-[1.01]">
+                <div class="flex items-center gap-2.5 mb-2">
+                  <span class="material-symbols-outlined text-[#004784] text-xl">schedule</span>
+                  <h4 class="text-sm font-bold text-[#004784]">Horarios y Asistencia</h4>
+                </div>
+                <p class="text-xs text-[#4A5568] leading-relaxed">
+                  La puntualidad es obligatoria. Retrasos mayores a 15 minutos requieren justificación médica.
+                </p>
               </div>
-              <div class="p-4 rounded-lg bg-gray-50 border-l-4 border-secondary">
-                <h4 class="text-xs font-bold text-secondary mb-1">Equipamiento</h4>
-                <p class="text-xs text-on-surface-variant">Uso obligatorio del uniforme oficial y calzado deportivo adecuado para superficies sintéticas.</p>
+
+              <!-- Card 2 -->
+              <div class="bg-[#FFFFFF] p-5 rounded-[16px] shadow-[0_4px_16px_rgba(0,0,0,0.03)] transition-all duration-300 hover:scale-[1.01]">
+                <div class="flex items-center gap-2.5 mb-2">
+                  <span class="material-symbols-outlined text-[#004784] text-xl">sports_soccer</span>
+                  <h4 class="text-sm font-bold text-[#004784]">Equipamiento</h4>
+                </div>
+                <p class="text-xs text-[#4A5568] leading-relaxed">
+                  Uso obligatorio del uniforme oficial y calzado deportivo adecuado para superficies sintéticas.
+                </p>
               </div>
-              <div class="p-4 rounded-lg bg-gray-50 border-l-4 border-yellow-600">
-                <h4 class="text-xs font-bold text-yellow-700 mb-1">Conducta</h4>
-                <p class="text-xs text-on-surface-variant">Respeto absoluto hacia entrenadores y compañeros. Cero tolerancia al acoso.</p>
+
+              <!-- Card 3 -->
+              <div class="bg-[#FFFFFF] p-5 rounded-[16px] shadow-[0_4px_16px_rgba(0,0,0,0.03)] transition-all duration-300 hover:scale-[1.01]">
+                <div class="flex items-center gap-2.5 mb-2">
+                  <span class="material-symbols-outlined text-[#004784] text-xl">gavel</span>
+                  <h4 class="text-sm font-bold text-[#004784]">Conducta</h4>
+                </div>
+                <p class="text-xs text-[#4A5568] leading-relaxed">
+                  Respeto absoluto hacia entrenadores y compañeros. Cero tolerancia al acoso o mala conducta.
+                </p>
               </div>
-              <div class="p-4 rounded-lg bg-gray-50 border-l-4 border-gray-500">
-                <h4 class="text-xs font-bold text-gray-700 mb-1">Salud y Seguridad</h4>
-                <p class="text-xs text-on-surface-variant">Notificar inmediatamente cualquier malestar físico o lesión durante las sesiones.</p>
+
+              <!-- Card 4 -->
+              <div class="bg-[#FFFFFF] p-5 rounded-[16px] shadow-[0_4px_16px_rgba(0,0,0,0.03)] transition-all duration-300 hover:scale-[1.01]">
+                <div class="flex items-center gap-2.5 mb-2">
+                  <span class="material-symbols-outlined text-[#004784] text-xl">medical_services</span>
+                  <h4 class="text-sm font-bold text-[#004784]">Salud y Seguridad</h4>
+                </div>
+                <p class="text-xs text-[#4A5568] leading-relaxed">
+                  Notificar inmediatamente cualquier malestar físico o lesión durante las sesiones.
+                </p>
               </div>
             </div>
 
@@ -549,13 +576,15 @@
               <p><strong>IV. DERECHOS DE IMAGEN:</strong> El tutor responsable autoriza el uso de imágenes y fotos del menor inscrito únicamente para fines promocionales e informativos del club.</p>
             </div>
 
-            <!-- Checkbox -->
-            <label class="flex items-center gap-4 p-4 rounded-xl bg-primary/5 border border-primary/10 cursor-pointer transition-all active:scale-[0.99]" id="confirmBox">
-              <input type="checkbox" id="rulesCheck" required class="w-6 h-6 rounded border-outline-variant text-primary focus:ring-primary-container transition-all cursor-pointer" />
-              <span class="text-xs font-semibold text-on-surface select-none">
-                He leído y acepto los términos y condiciones del reglamento de Verano Felinos 2026.
-              </span>
-            </label>
+            <!-- Checkbox (Soft UI Highlighted Pill container) -->
+            <div class="p-0.5 rounded-[20px] bg-gradient-to-br from-[#006b5f]/15 to-[#006b5f]/5 shadow-[0_4px_16px_rgba(0,107,95,0.03)]">
+              <label class="flex items-center gap-4 p-4 rounded-[18px] bg-[#F0F9F8] border border-transparent hover:border-[#006b5f]/10 cursor-pointer transition-all active:scale-[0.99] hover:bg-[#E6F4F2]" id="confirmBox">
+                <input type="checkbox" id="rulesCheck" required class="w-6 h-6 rounded border-[#006b5f]/30 text-[#006b5f] focus:ring-[#006b5f]/20 transition-all cursor-pointer" />
+                <span class="text-xs font-semibold text-[#006b5f] select-none leading-relaxed">
+                  He leído y acepto los términos y condiciones del reglamento de Verano Felinos 2026.
+                </span>
+              </label>
+            </div>
           </div>
 
           <!-- Bottom Navigation -->
@@ -673,12 +702,14 @@
         submitBtn.disabled = false;
         submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
         submitBtn.classList.add('bg-primary', 'hover:bg-primary-container', 'hover:scale-105', 'active:scale-95');
-        confirmBox.classList.add('bg-primary/10', 'border-primary');
+        confirmBox.classList.add('border-secondary', 'bg-[#E6F4F2]');
+        confirmBox.classList.remove('bg-[#F0F9F8]', 'border-secondary/15');
       } else {
         submitBtn.disabled = true;
         submitBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
         submitBtn.classList.remove('bg-primary', 'hover:bg-primary-container', 'hover:scale-105', 'active:scale-95');
-        confirmBox.classList.remove('bg-primary/10', 'border-primary');
+        confirmBox.classList.add('bg-[#F0F9F8]', 'border-secondary/15');
+        confirmBox.classList.remove('border-secondary', 'bg-[#E6F4F2]');
       }
     });
 
