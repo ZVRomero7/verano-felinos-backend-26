@@ -106,8 +106,6 @@ export const handleEnrollment = async (req, res) => {
   } catch (error) {
     console.error('[Enrollment Controller Error]:', error);
     return res.status(500).json({
-      success: false,
-      message: 'Ocurrió un error al procesar la inscripción.',
       error: error.message
     });
   }

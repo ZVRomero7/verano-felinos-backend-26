@@ -98,6 +98,33 @@
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.5);
     }
+    /* Bouncing Dots Loading Animation */
+    .bouncing-loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin: 24px 0 12px;
+    }
+    .bouncing-loader > div {
+      width: 12px;
+      height: 12px;
+      background-color: #004784;
+      border-radius: 50%;
+      animation: bouncing-loader 0.6s infinite alternate;
+    }
+    .bouncing-loader > div:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .bouncing-loader > div:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    @keyframes bouncing-loader {
+      to {
+        opacity: 0.1;
+        transform: translateY(-12px);
+      }
+    }
   </style>
 
   <script id="tailwind-config">
@@ -134,7 +161,7 @@
   <!-- Navbar -->
   <header class="flex justify-between items-center px-6 md:px-10 w-full h-16 fixed top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100/50 shadow-nav">
     <div class="flex items-center">
-      <img src="/SVG/Texto Verano Felinos.svg" alt="Verano Felinos" style="height: 35px;">
+      <img src="/SVG/Texto-Verano-Felinos.svg" alt="Verano Felinos" style="height: 35px;">
     </div>
   </header>
 
@@ -179,12 +206,7 @@
         </div>
       </div>
 
-      <!-- Loading / Submitting Overlay -->
-      <div id="loadingOverlay" class="fixed inset-0 loading-overlay z-[100] flex flex-col items-center justify-center hidden">
-        <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <h2 class="font-headline text-lg font-bold text-primary mt-4">Procesando Inscripción</h2>
-        <p class="text-sm text-on-surface-variant mt-2 px-6 text-center">Subiendo archivos a Google Drive y guardando datos en Google Sheets...</p>
-      </div>
+      <!-- Loading overlay removed in favor of SweetAlert2 -->
 
       <!-- WIZARD CARDS -->
       <div id="wizardCardContainer">
@@ -330,12 +352,12 @@
           </div>
 
           <!-- Bottom Navigation -->
-          <div class="mt-8 flex justify-between">
-            <button type="button" onclick="goToStep(1)" class="px-6 py-3 rounded-full text-on-surface-variant hover:bg-gray-100 font-semibold flex items-center gap-2 transition-all active:scale-95">
+          <div class="mt-8 flex flex-col-reverse sm:flex-row justify-between gap-3">
+            <button type="button" onclick="goToStep(1)" class="px-6 py-3 rounded-full text-on-surface-variant hover:bg-gray-100 font-semibold flex items-center justify-center gap-2 transition-all active:scale-95 w-full sm:w-auto">
               <span class="material-symbols-outlined">arrow_back</span>
               Atrás
             </button>
-            <button type="button" onclick="goToStep(3)" class="px-8 py-3 rounded-full bg-primary text-white hover:bg-primary-container font-semibold flex items-center gap-2 shadow-md hover:scale-105 active:scale-95 transition-all">
+            <button type="button" onclick="goToStep(3)" class="px-8 py-3 rounded-full bg-primary text-white hover:bg-primary-container font-semibold flex items-center justify-center gap-2 shadow-md hover:scale-102 active:scale-98 transition-all w-full sm:w-auto">
               Siguiente
               <span class="material-symbols-outlined">arrow_forward</span>
             </button>
@@ -356,8 +378,8 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- CURP File -->
               <div>
-                <input type="file" name="doc_curp" id="doc_curp" required accept="image/*,application/pdf" class="sr-only" onchange="handleFileSelected(this, 'curpDropZone', 'curpPrompt', 'curpStatus')" />
                 <label for="doc_curp" class="border-2 border-dashed border-outline-variant p-4 rounded-medium hover:bg-gray-50/50 cursor-pointer relative transition-all group flex flex-col items-center text-center justify-center min-h-[140px]" id="curpDropZone">
+                  <input type="file" name="doc_curp" id="doc_curp" required accept="image/*,application/pdf" class="sr-only" onchange="handleFileSelected(this, 'curpDropZone', 'curpPrompt', 'curpStatus')" />
                   <div class="flex flex-col items-center pointer-events-none" id="curpPrompt">
                     <span class="material-symbols-outlined text-primary text-3xl mb-1 group-hover:scale-110 transition-all">description</span>
                     <span class="text-xs font-semibold text-primary">Cargar CURP (PDF/Imagen) *</span>
@@ -373,8 +395,8 @@
 
               <!-- INE File -->
               <div>
-                <input type="file" name="doc_ine" id="doc_ine" required accept="image/*,application/pdf" class="sr-only" onchange="handleFileSelected(this, 'ineDropZone', 'inePrompt', 'ineStatus')" />
                 <label for="doc_ine" class="border-2 border-dashed border-outline-variant p-4 rounded-medium hover:bg-gray-50/50 cursor-pointer relative transition-all group flex flex-col items-center text-center justify-center min-h-[140px]" id="ineDropZone">
+                  <input type="file" name="doc_ine" id="doc_ine" required accept="image/*,application/pdf" class="sr-only" onchange="handleFileSelected(this, 'ineDropZone', 'inePrompt', 'ineStatus')" />
                   <div class="flex flex-col items-center pointer-events-none" id="inePrompt">
                     <span class="material-symbols-outlined text-primary text-3xl mb-1 group-hover:scale-110 transition-all">badge</span>
                     <span class="text-xs font-semibold text-primary">Cargar INE del Tutor (PDF/Imagen) *</span>
@@ -392,8 +414,8 @@
             <!-- Participant Photo Upload Card -->
             <div class="border-t border-gray-100 pt-4">
               <h3 class="font-headline text-md font-semibold text-primary mb-3">Foto del Participante *</h3>
-              <input type="file" name="child_photo" id="child_photo" required accept="image/*" class="sr-only" onchange="handlePhotoSelected(this, 'childPhotoDropZone', 'childPhotoPrompt', 'childPhotoPreview')" />
               <label for="child_photo" class="border-2 border-dashed border-outline-variant p-6 rounded-large hover:bg-gray-50/50 cursor-pointer relative transition-all group flex flex-col items-center text-center justify-center overflow-hidden h-44" id="childPhotoDropZone">
+                <input type="file" name="child_photo" id="child_photo" required accept="image/*" class="sr-only" onchange="handlePhotoSelected(this, 'childPhotoDropZone', 'childPhotoPrompt', 'childPhotoPreview')" />
                 <img id="childPhotoPreview" class="absolute inset-0 w-full h-full object-cover hidden" src="" />
                 
                 <div class="flex flex-col items-center relative z-10 bg-white/80 p-3 rounded-lg backdrop-blur-sm shadow-sm group-hover:scale-102 transition-transform pointer-events-none" id="childPhotoPrompt">
@@ -418,8 +440,8 @@
                     <input type="tel" name="auth1_phone" required placeholder="Teléfono *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-3 focus:ring-1 focus:ring-primary focus:border-primary" />
                   </div>
                   
-                  <input type="file" name="auth1_photo" id="auth1_photo" required accept="image/*" class="sr-only" onchange="handlePhotoSelected(this, 'auth1_dropzone', 'auth1_prompt', 'auth1_preview')" />
                   <label for="auth1_photo" id="auth1_dropzone" class="border border-dashed border-gray-300 rounded-lg p-2 hover:bg-gray-100/50 cursor-pointer relative h-24 flex items-center justify-center text-center overflow-hidden">
+                    <input type="file" name="auth1_photo" id="auth1_photo" required accept="image/*" class="sr-only" onchange="handlePhotoSelected(this, 'auth1_dropzone', 'auth1_prompt', 'auth1_preview')" />
                     <img id="auth1_preview" class="absolute inset-0 w-full h-full object-cover hidden" />
                     <div id="auth1_prompt" class="relative z-10 flex flex-col items-center pointer-events-none">
                       <span class="material-symbols-outlined text-gray-500 text-lg">add_a_photo</span>
@@ -436,8 +458,8 @@
                     <input type="tel" name="auth2_phone" required placeholder="Teléfono *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-3 focus:ring-1 focus:ring-primary focus:border-primary" />
                   </div>
                   
-                  <input type="file" name="auth2_photo" id="auth2_photo" required accept="image/*" class="sr-only" onchange="handlePhotoSelected(this, 'auth2_dropzone', 'auth2_prompt', 'auth2_preview')" />
                   <label for="auth2_photo" id="auth2_dropzone" class="border border-dashed border-gray-300 rounded-lg p-2 hover:bg-gray-100/50 cursor-pointer relative h-24 flex items-center justify-center text-center overflow-hidden">
+                    <input type="file" name="auth2_photo" id="auth2_photo" required accept="image/*" class="sr-only" onchange="handlePhotoSelected(this, 'auth2_dropzone', 'auth2_prompt', 'auth2_preview')" />
                     <img id="auth2_preview" class="absolute inset-0 w-full h-full object-cover hidden" />
                     <div id="auth2_prompt" class="relative z-10 flex flex-col items-center pointer-events-none">
                       <span class="material-symbols-outlined text-gray-500 text-lg">add_a_photo</span>
@@ -454,8 +476,8 @@
                     <input type="tel" name="auth3_phone" required placeholder="Teléfono *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-3 focus:ring-1 focus:ring-primary focus:border-primary" />
                   </div>
                   
-                  <input type="file" name="auth3_photo" id="auth3_photo" required accept="image/*" class="sr-only" onchange="handlePhotoSelected(this, 'auth3_dropzone', 'auth3_prompt', 'auth3_preview')" />
                   <label for="auth3_photo" id="auth3_dropzone" class="border border-dashed border-gray-300 rounded-lg p-2 hover:bg-gray-100/50 cursor-pointer relative h-24 flex items-center justify-center text-center overflow-hidden">
+                    <input type="file" name="auth3_photo" id="auth3_photo" required accept="image/*" class="sr-only" onchange="handlePhotoSelected(this, 'auth3_dropzone', 'auth3_prompt', 'auth3_preview')" />
                     <img id="auth3_preview" class="absolute inset-0 w-full h-full object-cover hidden" />
                     <div id="auth3_prompt" class="relative z-10 flex flex-col items-center pointer-events-none">
                       <span class="material-symbols-outlined text-gray-500 text-lg">add_a_photo</span>
@@ -469,12 +491,12 @@
           </div>
 
           <!-- Bottom Navigation -->
-          <div class="mt-8 flex justify-between">
-            <button type="button" onclick="goToStep(2)" class="px-6 py-3 rounded-full text-on-surface-variant hover:bg-gray-100 font-semibold flex items-center gap-2 transition-all active:scale-95">
+          <div class="mt-8 flex flex-col-reverse sm:flex-row justify-between gap-3">
+            <button type="button" onclick="goToStep(2)" class="px-6 py-3 rounded-full text-on-surface-variant hover:bg-gray-100 font-semibold flex items-center justify-center gap-2 transition-all active:scale-95 w-full sm:w-auto">
               <span class="material-symbols-outlined">arrow_back</span>
               Atrás
             </button>
-            <button type="button" onclick="goToStep(4)" class="px-8 py-3 rounded-full bg-primary text-white hover:bg-primary-container font-semibold flex items-center gap-2 shadow-md hover:scale-105 active:scale-95 transition-all">
+            <button type="button" onclick="goToStep(4)" class="px-8 py-3 rounded-full bg-primary text-white hover:bg-primary-container font-semibold flex items-center justify-center gap-2 shadow-md hover:scale-102 active:scale-98 transition-all w-full sm:w-auto">
               Siguiente
               <span class="material-symbols-outlined">arrow_forward</span>
             </button>
@@ -537,12 +559,12 @@
           </div>
 
           <!-- Bottom Navigation -->
-          <div class="mt-8 flex justify-between">
-            <button type="button" onclick="goToStep(3)" class="px-6 py-3 rounded-full text-on-surface-variant hover:bg-gray-100 font-semibold flex items-center gap-2 transition-all active:scale-95">
+          <div class="mt-8 flex flex-col-reverse sm:flex-row justify-between gap-4">
+            <button type="button" onclick="goToStep(3)" class="px-6 py-3 rounded-full text-on-surface-variant hover:bg-gray-100 font-semibold flex items-center justify-center gap-2 transition-all active:scale-95 w-full sm:w-auto">
               <span class="material-symbols-outlined">arrow_back</span>
               Atrás
             </button>
-            <button type="submit" id="submitBtn" class="px-10 py-4 rounded-full bg-gray-400 text-white font-semibold flex items-center gap-3 transition-all cursor-not-allowed" disabled>
+            <button type="submit" id="submitBtn" class="px-6 md:px-10 py-3.5 md:py-4 rounded-full bg-gray-400 text-white font-semibold flex items-center justify-center gap-2.5 transition-all cursor-not-allowed w-full sm:w-auto whitespace-nowrap text-sm md:text-base" disabled>
               <span>Finalizar Inscripción</span>
               <span class="material-symbols-outlined">check_circle</span>
             </button>
@@ -577,17 +599,7 @@
     </form>
   </main>
 
-  <!-- Mobile Bottom Menu bar -->
-  <nav class="md:hidden fixed bottom-0 w-full z-40 flex justify-around items-center px-4 py-3 bg-white shadow-[0px_-4px_20px_rgba(0,0,0,0.08)] rounded-t-xl">
-    <div class="flex flex-col items-center justify-center bg-primary/10 text-primary rounded-full px-5 py-1">
-      <span class="material-symbols-outlined">edit_document</span>
-      <span class="text-[10px] font-semibold">Registro</span>
-    </div>
-    <div class="flex flex-col items-center justify-center text-on-surface-variant opacity-60">
-      <span class="material-symbols-outlined">badge</span>
-      <span class="text-[10px]">Portal</span>
-    </div>
-  </nav>
+  <!-- Mobile Bottom Menu bar removed -->
 
   <!-- Decorative Background Elements -->
   <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-[-1] overflow-hidden opacity-50">
@@ -910,51 +922,63 @@
       }
 
       const formData = new FormData(form);
-      const loading = document.getElementById('loadingOverlay');
       
-      // Show loading
-      loading.classList.remove('hidden');
+      // Show loading modal using SweetAlert2
+      Swal.fire({
+        title: 'Verano Felinos 2026',
+        html: `
+          <div class="bouncing-loader">
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <p class="text-sm font-semibold text-primary mt-4">Subiendo archivos y guardando datos...</p>
+        `,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        customClass: {
+          popup: 'swal2-popup'
+        }
+      });
 
       fetch('/api/v1/enroll', {
         method: 'POST',
         body: formData
       })
-      .then(response => response.json())
+      .then(response => {
+        return response.json().then(data => {
+          if (!response.ok) {
+            throw new Error(data.error || data.message || 'Error en el servidor al procesar la inscripción.');
+          }
+          return data;
+        });
+      })
       .then(result => {
-        loading.classList.add('hidden');
+        Swal.close();
         
-        if (result.success) {
-          // Hide all step cards
-          document.querySelectorAll('.step-card').forEach(card => card.classList.add('hidden'));
-          
-          // Populate success card details
-          document.getElementById('successFolio').textContent = result.data.folioId;
-          document.getElementById('successChildName').textContent = result.data.childName;
-          
-          // Show success card
-          document.getElementById('successCard').classList.remove('hidden');
-          
-          // Hide indicators
-          document.querySelector('.mb-8').classList.add('hidden');
-          
-          // Scroll to top
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-          Swal.fire({
-            title: 'Verano Felinos 2026',
-            text: result.message || 'No se pudo procesar la inscripción.',
-            icon: 'error',
-            confirmButtonText: 'Aceptar',
-            confirmButtonColor: '#004784'
-          });
-        }
+        // Populate success card details
+        document.getElementById('successFolio').textContent = result.data.folioId;
+        document.getElementById('successChildName').textContent = result.data.childName;
+        
+        // Hide all step cards
+        document.querySelectorAll('.step-card').forEach(card => card.classList.add('hidden'));
+        
+        // Show success card
+        document.getElementById('successCard').classList.remove('hidden');
+        
+        // Hide indicators
+        document.querySelector('.mb-8').classList.add('hidden');
+        
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       })
       .catch(err => {
-        loading.classList.add('hidden');
+        Swal.close();
         console.error('Submit Error:', err);
         Swal.fire({
-          title: 'Verano Felinos 2026',
-          text: 'Ocurrió un error en el servidor al enviar la inscripción. Por favor intenta de nuevo.',
+          title: 'Error de Inscripción',
+          text: err.message || 'No se pudo procesar la inscripción.',
           icon: 'error',
           confirmButtonText: 'Aceptar',
           confirmButtonColor: '#004784'

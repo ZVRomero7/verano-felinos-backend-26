@@ -12,14 +12,14 @@ const getSheetsClient = () => {
   }
 
   try {
-    const formattedKey = privateKey.replace(/\\n/g, '\n');
-    const auth = new google.auth.JWT(
-      email,
-      null,
-      formattedKey,
-      ['https://www.googleapis.com/auth/spreadsheets']
-    );
-    return google.sheets({ version: 'v4', auth });
+    const auth = new google.auth.JWT({
+      email: email,
+      key: privateKey.replace(/\\n/g, '\n'),
+      private_key: privateKey.replace(/\\n/g, '\n'),
+      scopes: ['https://www.googleapis.com/auth/spreadsheets']
+    });
+    const sheets = google.sheets({ version: 'v4', auth });
+    return { sheets, auth };
   } catch (error) {
     console.error('[Google Sheets Auth Error]: Failed to create client:', error.message);
     return null;
@@ -32,7 +32,7 @@ const getSheetsClient = () => {
  * @param {Object} rowData - Form values and Drive file URLs
  */
 export const appendEnrollmentRow = async (rowData) => {
-  const sheets = getSheetsClient();
+  const clientData = getSheetsClient();
   const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 
   // Values in order of columns in Google Sheets
@@ -66,13 +66,15 @@ export const appendEnrollmentRow = async (rowData) => {
   ];
 
   // Run in Mock mode if Sheets client or Sheet ID is not set
-  if (!sheets || !spreadsheetId) {
+  if (!clientData || !spreadsheetId) {
     console.log(`\n📊  [Google Sheets Mock Mode]: Row appending simulation`);
     console.log(`Spreadsheet ID: ${spreadsheetId || 'NOT_CONFIGURED'}`);
     console.log(`Row Data:`, values[0]);
     console.log(`📊  [Google Sheets Mock Mode]: Completed row append simulation.\n`);
     return { success: true, mockAppended: true };
   }
+
+  const { sheets, auth } = clientData;
 
   try {
     const response = await sheets.spreadsheets.values.append({
@@ -82,7 +84,8 @@ export const appendEnrollmentRow = async (rowData) => {
       insertDataOption: 'INSERT_ROWS',
       requestBody: {
         values
-      }
+      },
+      auth
     });
 
     console.log(`[Google Sheets Service]: Row appended successfully. Updated cells: ${response.data.updates.updatedCells}`);
@@ -97,10 +100,10 @@ export const appendEnrollmentRow = async (rowData) => {
  * Fetches a participant row from Google Sheets by Folio ID.
  */
 export const getRowByFolio = async (folioId) => {
-  const sheets = getSheetsClient();
+  const clientData = getSheetsClient();
   const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 
-  if (!sheets || !spreadsheetId) {
+  if (!clientData || !spreadsheetId) {
     console.log(`\n📊  [Google Sheets Mock Mode]: Fetching row simulation for folio: ${folioId}`);
     return {
       folioId,
@@ -117,10 +120,13 @@ export const getRowByFolio = async (folioId) => {
     };
   }
 
+  const { sheets, auth } = clientData;
+
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: 'A:Z'
+      range: 'A:Z',
+      auth
     });
     
     const rows = response.data.values;

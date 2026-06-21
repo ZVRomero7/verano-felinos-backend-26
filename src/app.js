@@ -32,6 +32,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static assets from SVG folder
+app.use('/SVG', express.static(path.join(__dirname, '../SVG')));
+
 // Mount routes
 app.use('/api/v1', apiRouter);
 app.use('/', webRouter);

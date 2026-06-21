@@ -30,14 +30,14 @@ const getDriveClient = () => {
   }
 
   try {
-    const formattedKey = privateKey.replace(/\\n/g, '\n');
-    const auth = new google.auth.JWT(
-      email,
-      null,
-      formattedKey,
-      ['https://www.googleapis.com/auth/drive']
-    );
-    return google.drive({ version: 'v3', auth });
+    const auth = new google.auth.JWT({
+      email: email,
+      key: privateKey.replace(/\\n/g, '\n'),
+      private_key: privateKey.replace(/\\n/g, '\n'),
+      scopes: ['https://www.googleapis.com/auth/drive']
+    });
+    const drive = google.drive({ version: 'v3', auth });
+    return { drive, auth };
   } catch (error) {
     console.error('[Google Drive Auth Error]: Failed to create client:', error.message);
     return null;
@@ -47,7 +47,7 @@ const getDriveClient = () => {
 /**
  * Uploads a single file buffer to Google Drive inside a specified folder.
  */
-const uploadSingleFile = async (drive, file, folderId) => {
+const uploadSingleFile = async (drive, file, folderId, auth) => {
   const fileMetadata = {
     name: file.originalname,
     parents: [folderId]
@@ -60,7 +60,8 @@ const uploadSingleFile = async (drive, file, folderId) => {
   const response = await drive.files.create({
     requestBody: fileMetadata,
     media: media,
-    fields: 'id, webViewLink'
+    fields: 'id, webViewLink',
+    auth
   });
 
   // Make the file publicly readable so it can be displayed in profiles/portals
@@ -70,7 +71,8 @@ const uploadSingleFile = async (drive, file, folderId) => {
       requestBody: {
         role: 'reader',
         type: 'anyone'
-      }
+      },
+      auth
     });
   } catch (permError) {
     console.error(`[Google Drive Service] Warning: Failed to share file ${file.originalname}:`, permError.message);
@@ -90,11 +92,11 @@ const uploadSingleFile = async (drive, file, folderId) => {
  * @returns {Promise<Object>} File fieldnames mapped to their Drive URLs
  */
 export const uploadEnrollmentFiles = async (folio, sedeId, childName, files) => {
-  const drive = getDriveClient();
+  const clientData = getDriveClient();
   const fileUrls = {};
 
   // If Drive credentials are not set, run in Mock mode
-  if (!drive) {
+  if (!clientData) {
     console.log(`\n☁️  [Google Drive Mock Mode]: Folder creation simulation`);
     console.log(`📁 Target Root: ${rootFolderId}`);
     console.log(`📂 Creating Sede Folder: "${sedeId}"`);
@@ -110,13 +112,16 @@ export const uploadEnrollmentFiles = async (folio, sedeId, childName, files) => 
     return fileUrls;
   }
 
+  const { drive, auth } = clientData;
+
   try {
     // 1. Find or create the Sede folder
     let sedeFolderId;
     const sedeSearch = await drive.files.list({
       q: `name = '${sedeId}' and '${rootFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
       fields: 'files(id, name)',
-      spaces: 'drive'
+      spaces: 'drive',
+      auth
     });
 
     if (sedeSearch.data.files && sedeSearch.data.files.length > 0) {
@@ -130,7 +135,8 @@ export const uploadEnrollmentFiles = async (folio, sedeId, childName, files) => 
       };
       const newSedeFolder = await drive.files.create({
         requestBody: sedeMetadata,
-        fields: 'id'
+        fields: 'id',
+        auth
       });
       sedeFolderId = newSedeFolder.data.id;
       console.log(`[Google Drive Service]: Created new folder for Sede ${sedeId}: ${sedeFolderId}`);
@@ -145,7 +151,8 @@ export const uploadEnrollmentFiles = async (folio, sedeId, childName, files) => 
     };
     const childFolder = await drive.files.create({
       requestBody: childMetadata,
-      fields: 'id'
+      fields: 'id',
+      auth
     });
     const childFolderId = childFolder.data.id;
     console.log(`[Google Drive Service]: Created participant folder "${childFolderName}": ${childFolderId}`);
@@ -155,7 +162,7 @@ export const uploadEnrollmentFiles = async (folio, sedeId, childName, files) => 
       const file = files[fieldName][0];
       if (file) {
         console.log(`[Google Drive Service]: Uploading ${fieldName} (${file.originalname})...`);
-        const webViewLink = await uploadSingleFile(drive, file, childFolderId);
+        const webViewLink = await uploadSingleFile(drive, file, childFolderId, auth);
         fileUrls[fieldName] = webViewLink;
       }
     }
