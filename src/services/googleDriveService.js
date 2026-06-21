@@ -30,7 +30,7 @@ const getDriveClient = () => {
   }
 
   try {
-    const formattedKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY.replace(/^"|"$/g, '').replace(/\\n/g, '\n');
+    const formattedKey = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
     const auth = new google.auth.JWT({
       email: email,
       key: formattedKey,
