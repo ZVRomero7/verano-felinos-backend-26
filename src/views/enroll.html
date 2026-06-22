@@ -606,7 +606,7 @@
             <span class="material-symbols-outlined text-5xl" style="font-variation-settings: 'FILL' 1;">verified</span>
           </div>
           <h2 class="font-headline text-3xl font-bold text-primary mb-2">¡Inscripción Exitosa!</h2>
-          <p class="text-sm text-on-surface-variant max-w-md mb-6">La información ha sido registrada y los archivos se guardaron correctamente en Google Drive.</p>
+          <p class="text-sm text-on-surface-variant max-w-md mb-6">La información y documentación han sido registradas y aseguradas exitosamente.</p>
           
           <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-8 w-full max-w-sm">
             <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Folio del Alumno</span>
@@ -616,7 +616,7 @@
             <span class="font-semibold text-sm text-on-surface" id="successChildName">Nombre del Menor</span>
           </div>
 
-          <p class="text-xs text-on-surface-variant max-w-sm mb-6">Conserva este Folio. Con él podrás ingresar a tu perfil digital e iniciar el portal de actualización de documentos si es necesario.</p>
+          <p class="text-xs text-on-surface-variant max-w-sm mb-6">Conserva este Folio. Será tu identificador oficial durante todo el Curso de Verano Felinos 2026.</p>
           
           <div class="flex gap-4">
             <a href="/" class="px-8 py-3 rounded-full bg-primary text-white hover:bg-primary-container font-semibold transition-all active:scale-95">Inscribir Otro Alumno</a>
@@ -956,7 +956,7 @@
       
       // Show loading modal using SweetAlert2
       Swal.fire({
-        title: 'Verano Felinos 2026',
+        title: 'Procesando Inscripción',
         html: `
           <div class="bouncing-loader">
             <div></div>
@@ -964,6 +964,7 @@
             <div></div>
           </div>
           <p class="text-sm font-semibold text-primary mt-4">Subiendo archivos y guardando datos...</p>
+          <p class="text-xs text-on-surface-variant/70 mt-2 leading-relaxed">Procesando imágenes de alta resolución y encriptando documentos de forma segura. Por favor, no cierres ni recargues esta pestaña.</p>
         `,
         allowOutsideClick: false,
         allowEscapeKey: false,

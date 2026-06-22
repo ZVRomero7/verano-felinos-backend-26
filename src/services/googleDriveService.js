@@ -7,16 +7,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load Google Workspace Drive Root ID from config.json
-const configPath = path.join(__dirname, '../../config.json');
-let config;
-try {
-  config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-} catch (error) {
-  console.error('[Google Drive Service]: Failed to load config.json:', error.message);
-}
-
-const rootFolderId = config?.google_workspace?.drive_root_id || '1NaiQdN_Pxqg0ALWtTK_hED5uke6QG18o';
+// Load Google Workspace Drive Root ID dynamically from environment variables
+const rootFolderId = process.env.GOOGLE_DRIVE_ROOT_ID || '1NaiQdN_Pxqg0ALWtTK_hED5uke6QG18o';
 
 /**
  * Instantiates the Google Drive client. Returns null if credentials are not configured.
