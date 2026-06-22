@@ -4,22 +4,15 @@ import { google } from 'googleapis';
  * Instantiates the Google Sheets client. Returns null if credentials are not configured.
  */
 const getSheetsClient = () => {
-  const credsJson = process.env.GOOGLE_CREDS_JSON;
+  const base64Creds = process.env.GOOGLE_CREDS_BASE64;
 
-  if (!credsJson) {
+  if (!base64Creds) {
     return null;
   }
 
   try {
-    let rawCreds = process.env.GOOGLE_CREDS_JSON;
-    // 1. Quitar comillas iniciales/finales si Hostinger las puso
-    rawCreds = rawCreds.replace(/^"|"$/g, ''); 
-    // 2. Eliminar el backslash antes de la llave de apertura
-    rawCreds = rawCreds.replace(/^\\{/g, '{'); 
-    // 3. Reemplazar backslashes literales de salto de línea
-    rawCreds = rawCreds.replace(/\\\\n/g, '\\n');
-
-    const credentials = JSON.parse(rawCreds);
+    const decodedJson = Buffer.from(base64Creds, 'base64').toString('utf-8');
+    const credentials = JSON.parse(decodedJson);
     const auth = new google.auth.GoogleAuth({
       credentials,
       scopes: ['https://www.googleapis.com/auth/spreadsheets']
