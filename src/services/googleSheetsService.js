@@ -4,19 +4,15 @@ import { google } from 'googleapis';
  * Instantiates the Google Sheets client. Returns null if credentials are not configured.
  */
 const getSheetsClient = () => {
-  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const privateKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+  const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 
-  if (!email || !privateKey) {
+  if (!spreadsheetId) {
     return null;
   }
 
   try {
-    const formattedKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY.replace(/\\n/g, '\n');
-    const auth = new google.auth.JWT({
-      email: email,
-      key: formattedKey,
-      private_key: formattedKey,
+    const auth = new google.auth.GoogleAuth({
+      keyFile: './google-credentials.json',
       scopes: ['https://www.googleapis.com/auth/spreadsheets']
     });
     const sheets = google.sheets({ version: 'v4', auth });
