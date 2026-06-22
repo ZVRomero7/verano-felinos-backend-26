@@ -4,21 +4,25 @@ import { google } from 'googleapis';
  * Instantiates the Google Sheets client. Returns null if credentials are not configured.
  */
 const getSheetsClient = () => {
-  const base64Creds = process.env.GOOGLE_CREDS_BASE64;
+  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
 
-  if (!base64Creds) {
+  if (!refreshToken) {
     return null;
   }
 
   try {
-    const decodedJson = Buffer.from(base64Creds, 'base64').toString('utf-8');
-    const credentials = JSON.parse(decodedJson);
-    const auth = new google.auth.GoogleAuth({
-      credentials,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets']
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      "https://developers.google.com/oauthplayground"
+    );
+
+    oauth2Client.setCredentials({
+      refresh_token: refreshToken
     });
-    const sheets = google.sheets({ version: 'v4', auth });
-    return { sheets, auth };
+
+    const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
+    return { sheets, auth: oauth2Client };
   } catch (error) {
     console.error('[Google Sheets Auth Error]: Failed to create client:', error.message);
     return null;

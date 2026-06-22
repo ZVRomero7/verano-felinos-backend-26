@@ -22,21 +22,25 @@ const rootFolderId = config?.google_workspace?.drive_root_id || '1NaiQdN_Pxqg0AL
  * Instantiates the Google Drive client. Returns null if credentials are not configured.
  */
 const getDriveClient = () => {
-  const base64Creds = process.env.GOOGLE_CREDS_BASE64;
+  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
 
-  if (!base64Creds) {
+  if (!refreshToken) {
     return null;
   }
 
   try {
-    const decodedJson = Buffer.from(base64Creds, 'base64').toString('utf-8');
-    const credentials = JSON.parse(decodedJson);
-    const auth = new google.auth.GoogleAuth({
-      credentials,
-      scopes: ['https://www.googleapis.com/auth/drive']
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      "https://developers.google.com/oauthplayground"
+    );
+
+    oauth2Client.setCredentials({
+      refresh_token: refreshToken
     });
-    const drive = google.drive({ version: 'v3', auth });
-    return { drive, auth };
+
+    const drive = google.drive({ version: 'v3', auth: oauth2Client });
+    return { drive, auth: oauth2Client };
   } catch (error) {
     console.error('[Google Drive Auth Error]: Failed to create client:', error.message);
     return null;
