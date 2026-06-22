@@ -4,15 +4,16 @@ import { google } from 'googleapis';
  * Instantiates the Google Sheets client. Returns null if credentials are not configured.
  */
 const getSheetsClient = () => {
-  const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+  const credsJson = process.env.GOOGLE_CREDS_JSON;
 
-  if (!spreadsheetId) {
+  if (!credsJson) {
     return null;
   }
 
   try {
+    const credentials = JSON.parse(credsJson);
     const auth = new google.auth.GoogleAuth({
-      keyFile: './google-credentials.json',
+      credentials,
       scopes: ['https://www.googleapis.com/auth/spreadsheets']
     });
     const sheets = google.sheets({ version: 'v4', auth });

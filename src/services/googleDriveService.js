@@ -22,15 +22,16 @@ const rootFolderId = config?.google_workspace?.drive_root_id || '1NaiQdN_Pxqg0AL
  * Instantiates the Google Drive client. Returns null if credentials are not configured.
  */
 const getDriveClient = () => {
-  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const credsJson = process.env.GOOGLE_CREDS_JSON;
 
-  if (!sheetId) {
+  if (!credsJson) {
     return null;
   }
 
   try {
+    const credentials = JSON.parse(credsJson);
     const auth = new google.auth.GoogleAuth({
-      keyFile: './google-credentials.json',
+      credentials,
       scopes: ['https://www.googleapis.com/auth/drive']
     });
     const drive = google.drive({ version: 'v3', auth });
