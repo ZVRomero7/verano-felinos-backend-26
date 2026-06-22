@@ -29,7 +29,15 @@ const getDriveClient = () => {
   }
 
   try {
-    const credentials = JSON.parse(credsJson);
+    let rawCreds = process.env.GOOGLE_CREDS_JSON;
+    // 1. Quitar comillas iniciales/finales si Hostinger las puso
+    rawCreds = rawCreds.replace(/^"|"$/g, ''); 
+    // 2. Eliminar el backslash antes de la llave de apertura
+    rawCreds = rawCreds.replace(/^\\{/g, '{'); 
+    // 3. Reemplazar backslashes literales de salto de línea
+    rawCreds = rawCreds.replace(/\\\\n/g, '\\n');
+
+    const credentials = JSON.parse(rawCreds);
     const auth = new google.auth.GoogleAuth({
       credentials,
       scopes: ['https://www.googleapis.com/auth/drive']
