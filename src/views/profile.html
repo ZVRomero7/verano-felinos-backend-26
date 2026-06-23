@@ -141,13 +141,22 @@
       border-radius: 9999px;
       font-size: 0.75rem;
       font-weight: 600;
-      margin-bottom: 24px;
+      margin-bottom: 8px; /* Reduced to leave space for Folio ID */
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
     .pill-badge span {
       font-size: 14px;
+    }
+
+    .profile-folio {
+      font-size: 13px;
+      color: #718096;
+      letter-spacing: 0.5px;
+      margin-bottom: 24px;
+      font-weight: 500;
+      text-align: center;
     }
 
     /* Tab Controls */
@@ -165,9 +174,9 @@
       flex: 1;
       border: none;
       background: transparent;
-      padding: 10px 0;
+      padding: 8px 10px;
       font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
+      font-size: 12px;
       font-weight: 700;
       color: var(--text-muted);
       border-radius: 12px;
@@ -175,6 +184,7 @@
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       text-align: center;
       letter-spacing: 0.5px;
+      white-space: nowrap; /* Avoid text wrapping on mobile */
     }
 
     .tab-btn.active {
@@ -409,6 +419,85 @@
       margin: 0 auto 24px auto;
     }
 
+    /* Tab Content Fade In Animation */
+    .tab-fade-in {
+      animation: tabFadeIn 0.3s ease-in-out forwards;
+    }
+
+    @keyframes tabFadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Footer Status Bar with Glowing Dot */
+    .profile-footer {
+      width: 100%;
+      border-top: 1px solid var(--border-color);
+      margin-top: 24px;
+      padding-top: 18px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      background-color: #FAFBFD;
+      border: 1px solid var(--border-color);
+      color: var(--text-dark);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #00A896;
+      display: inline-block;
+    }
+
+    .status-dot.pulse {
+      animation: pulse 1.6s infinite ease-in-out;
+    }
+
+    .status-dot.orange {
+      background-color: var(--accent-orange);
+    }
+
+    .status-dot.orange.pulse {
+      animation: pulse-orange 1.6s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(0, 168, 150, 0.4);
+      }
+      70% {
+        box-shadow: 0 0 0 6px rgba(0, 168, 150, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(0, 168, 150, 0);
+      }
+    }
+
+    @keyframes pulse-orange {
+      0% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+      }
+      70% {
+        box-shadow: 0 0 0 6px rgba(245, 158, 11, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+      }
+    }
+
     /* Swal Styling Overrides */
     .swal2-popup {
       border-radius: 24px !important;
@@ -463,6 +552,8 @@
           <span class="material-symbols-outlined">verified</span>
           Verano 2026
         </div>
+        
+        <div class="profile-folio" id="headerFolio">Folio: -</div>
 
         <!-- Navigation Tabs -->
         <div class="tabs-nav">
@@ -488,33 +579,11 @@
 
               <div class="info-card">
                 <div class="info-card-icon">
-                  <span class="material-symbols-outlined">pin</span>
+                  <span class="material-symbols-outlined">corporate_fare</span>
                 </div>
                 <div class="info-card-details">
-                  <div class="info-label">Folio</div>
-                  <div class="info-value" id="field_folio">-</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="info-card">
-              <div class="info-card-icon">
-                <span class="material-symbols-outlined">corporate_fare</span>
-              </div>
-              <div class="info-card-details">
-                <div class="info-label">Sede de Inscripción</div>
-                <div class="info-value" id="field_sede">-</div>
-              </div>
-            </div>
-
-            <div class="info-card">
-              <div class="info-card-icon" id="statusIconBg">
-                <span class="material-symbols-outlined" id="statusIcon">info</span>
-              </div>
-              <div class="info-card-details">
-                <div class="info-label">Estatus Registro</div>
-                <div>
-                  <span class="status-badge" id="field_estatus">-</span>
+                  <div class="info-label">Sede</div>
+                  <div class="info-value" id="field_sede">-</div>
                 </div>
               </div>
             </div>
@@ -597,6 +666,14 @@
           </div>
         </div>
 
+        <!-- Footer Status Bar -->
+        <div class="profile-footer">
+          <div class="status-pill">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="footerStatusText">Cargando Estatus...</span>
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -637,18 +714,19 @@
 
     function parseDriveImageUrl(url) {
       if (!url) return '';
-      // Support drive.google.com viewing URLs
+      // Support drive.google.com viewing URLs and convert them to lh3 hotlinks
       const fileIdMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
       if (fileIdMatch && fileIdMatch[1]) {
-        return `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
+        return `https://lh3.googleusercontent.com/d/${fileIdMatch[1]}`;
       }
       return url;
     }
 
     function renderProfile(data) {
-      // 1. Photo and name
+      // 1. Photo, name and Folio
       const fullName = `${data.nombre} ${data.paterno} ${data.materno}`.trim();
       document.getElementById('fullName').textContent = fullName;
+      document.getElementById('headerFolio').textContent = `Folio: ${data.folio}`;
       
       const img = document.getElementById('profileImage');
       const placeholder = document.getElementById('avatarPlaceholder');
@@ -662,7 +740,6 @@
       }
 
       // 2. Tab: General
-      document.getElementById('field_folio').textContent = data.folio;
       document.getElementById('field_sede').textContent = data.sede || '';
       document.getElementById('field_edad_nac').textContent = `${data.edad} años (${formatBirthDate(data.fechaNacimiento)})`;
       
@@ -677,22 +754,16 @@
         tutorCall.style.display = 'none';
       }
 
-      // Status styling
+      // Footer Status Bar styling
       const estatus = data.estatus || 'Pendiente';
-      const statusBadge = document.getElementById('field_estatus');
-      statusBadge.textContent = estatus;
+      const statusTextEl = document.getElementById('footerStatusText');
+      statusTextEl.textContent = estatus;
       
-      const statusIcon = document.getElementById('statusIcon');
-      const statusIconBg = document.getElementById('statusIconBg');
-
+      const statusDot = document.getElementById('statusDot');
       if (estatus.toLowerCase() === 'confirmado' || estatus.toLowerCase() === 'activo' || estatus.toLowerCase() === 'confirmado/activo') {
-        statusBadge.className = 'status-badge green';
-        statusIcon.textContent = 'check_circle';
-        statusIconBg.className = 'info-card-icon green';
+        statusDot.className = 'status-dot pulse'; // green dot with pulse animation
       } else {
-        statusBadge.className = 'status-badge orange';
-        statusIcon.textContent = 'hourglass_empty';
-        statusIconBg.className = 'info-card-icon orange';
+        statusDot.className = 'status-dot orange pulse'; // orange dot with pulse animation
       }
 
       // 3. Tab: Medico
@@ -770,13 +841,22 @@
       document.getElementById('loadedState').style.display = 'flex';
     }
 
-    // Switch Tab active class and visible content
+    // Switch Tab active class and visible content with sutil fade-in animation
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      document.getElementById(`tabContent_${tabId}`).classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(c => {
+        c.classList.remove('active');
+        c.classList.remove('tab-fade-in');
+      });
+      
+      const activeContent = document.getElementById(`tabContent_${tabId}`);
+      activeContent.classList.add('active');
+      
+      // Trigger reflow to restart CSS animation
+      void activeContent.offsetWidth;
+      activeContent.classList.add('tab-fade-in');
     }
 
     function formatBirthDate(dateStr) {
