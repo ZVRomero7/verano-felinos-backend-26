@@ -58,8 +58,8 @@ export const handleEnrollment = async (req, res) => {
     }
 
     // Name splitting algorithm
-    const cleanedName = nombreInscrito.replace(/\s+/g, ' ');
-    const nameWords = cleanedName.split(' ');
+    const cleanedName = (nombreInscrito || '').trim().replace(/\s+/g, ' ');
+    const nameWords = cleanedName ? cleanedName.split(' ') : [];
     let childName = '';
     let childLastName = '';
     let childSecondLastName = '';
