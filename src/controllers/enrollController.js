@@ -12,33 +12,37 @@ export const handleEnrollment = async (req, res) => {
   try {
     const { body, files } = req;
 
-    // 1. Extracción con tus variables originales correctas
-    const nombreInscrito = body.nombreInscrito?.trim() || body.child_name?.trim();
+    // 1. Extracción con soporte para los inputs en inglés de tu web
+    const nombreInscrito = (body.nombreInscrito || body.child_name || '').trim();
     const childAge = parseInt(body.child_age || body.edad, 10);
-    const sedeId = (body.sede || body.sede_id)?.trim() || 'UDU';
-    const childBirthDate = body.child_birth_date?.trim();
-    const childGender = body.child_gender?.trim();
+    const sedeId = (body.sede || body.sede_id || 'UDU').trim();
+    const childBirthDate = (body.child_birth_date || body.fechaNacimiento || '').trim();
+    const childGender = (body.child_gender || body.sexo || '').trim();
 
-    const tutorName = body.tutor_name?.trim();
-    const tutorPhone = body.tutor_phone?.trim();
-    const tutorEmail = body.tutor_email?.trim();
+    const tutorName = (body.tutor_name || body.nombreTutor || '').trim();
+    const tutorPhone = (body.tutor_phone || body.telefonoContacto || '').trim();
+    const tutorEmail = (body.tutor_email || body.correoElectronico || '').trim();
 
-    const emergencyContactName = body.emergency_contact_name?.trim();
-    const emergencyContactPhone = body.emergency_contact_phone?.trim();
+    const emergencyContactName = (body.emergency_contact_name || body.contactoEmergencia || '').trim();
+    const emergencyContactPhone = (body.emergency_contact_phone || body.telefonoEmergencia || '').trim();
 
-    const bloodType = body.blood_type?.trim();
-    const allergies = body.allergies?.trim() || 'Ninguna';
-    const medicalObservations = body.medical_observations?.trim() || 'Ninguna';
+    const bloodType = (body.blood_type || body.tipoSangre || '').trim();
+    const allergies = (body.allergies || body.medical_allergies || body.alergiasMedicas || 'Ninguna').trim();
+    const medicalObservations = (body.medical_observations || body.padecimientos || 'Ninguna').trim();
 
-    const auth1Name = body.auth1_name?.trim();
-    const auth1Phone = body.auth1_phone?.trim();
-    const auth2Name = body.auth2_name?.trim();
-    const auth2Phone = body.auth2_phone?.trim();
-    const auth3Name = body.auth3_name?.trim();
-    const auth3Phone = body.auth3_phone?.trim();
+    const auth1Name = (body.auth1_name || body.auth1Nombre || '').trim();
+    const auth1Phone = (body.auth1_phone || body.auth1Telefono || '').trim();
+    const auth2Name = (body.auth2_name || body.auth2Nombre || '').trim();
+    const auth2Phone = (body.auth2_phone || body.auth2Telefono || '').trim();
+    const auth3Name = (body.auth3_name || body.auth3Nombre || '').trim();
+    const auth3Phone = (body.auth3_phone || body.auth3Telefono || '').trim();
+
+    if (!nombreInscrito || !tutorEmail) {
+      return res.status(400).json({ success: false, message: 'Faltan campos obligatorios.' });
+    }
 
     // 2. Algoritmo de Separación de Nombres
-    const cleanedName = (nombreInscrito || '').trim().replace(/\s+/g, ' ');
+    const cleanedName = nombreInscrito.replace(/\s+/g, ' ');
     const nameWords = cleanedName ? cleanedName.split(' ') : [];
     let childName = '', childLastName = '', childSecondLastName = '';
 
@@ -94,42 +98,42 @@ export const handleEnrollment = async (req, res) => {
       fileUrls = await uploadEnrollmentFiles(folioId, sedeId, nombreInscrito, files);
     }
 
-    // 5. Mapeo Exacto y Blindado a 34 Elementos
+    // 5. Construcción Exacta de la Fila (34 Elementos Reales)
     const rowData = [
-      sedeId,                               // [0]
-      folioId,                              // [1]
-      new Date().toISOString(),             // [2]
-      childName || "",                      // [3]
-      childLastName || "",                  // [4]
-      childSecondLastName || "",            // [5]
-      childGender || "",                    // [6]
-      isNaN(childAge) ? "" : childAge,      // [7]
-      childBirthDate || "",                 // [8]
-      tutorName || "",                      // [9]
-      tutorPhone || "",                     // [10]
-      tutorEmail || "",                     // [11]
-      emergencyContactName || "",           // [12]
-      emergencyContactPhone || "",          // [13]
-      allergies || "Ninguna",               // [14]
-      medicalObservations || "Ninguna",     // [15]
-      bloodType || "",                      // [16]
-      auth1Name || "",                      // [17]
-      auth1Phone || "",                     // [18]
-      fileUrls.auth1_photo || "",           // [19]
-      auth2Name || "",                      // [20]
-      auth2Phone || "",                     // [21]
-      fileUrls.auth2_photo || "",           // [22]
-      auth3Name || "",                      // [23]
-      auth3Phone || "",                     // [24]
-      fileUrls.auth3_photo || "",           // [25]
-      fileUrls.child_photo || "",           // [26]
-      fileUrls.doc_curp || "",              // [27]
-      fileUrls.doc_ine || "",               // [28]
-      "",                                   // [29] Perfil Virtual
-      "",                                   // [30] Portal Edición
-      "Pendiente",                          // [31] Estatus Registro
-      "",                                   // [32] Log
-      ""                                    // [33] PDF Final
+      sedeId,                                     // [0]
+      folioId,                                    // [1]
+      new Date().toISOString(),                   // [2]
+      childName || "",                            // [3]
+      childLastName || "",                        // [4]
+      childSecondLastName || "",                  // [5]
+      childGender || "",                          // [6]
+      isNaN(childAge) ? "" : childAge,            // [7]
+      childBirthDate || "",                       // [8]
+      tutorName || "",                            // [9]
+      tutorPhone || "",                           // [10]
+      tutorEmail || "",                           // [11]
+      emergencyContactName || "",                 // [12]
+      emergencyContactPhone || "",                // [13]
+      allergies || "Ninguna",                     // [14]
+      medicalObservations || "Ninguna",           // [15]
+      bloodType || "",                            // [16]
+      auth1Name || "",                            // [17]
+      auth1Phone || "",                           // [18]
+      fileUrls.auth1_photo || "",                 // [19]
+      auth2Name || "",                            // [20]
+      auth2Phone || "",                           // [21]
+      fileUrls.auth2_photo || "",                 // [22]
+      auth3Name || "",                            // [23]
+      auth3Phone || "",                           // [24]
+      fileUrls.auth3_photo || "",                 // [25]
+      fileUrls.child_photo || "",                 // [26]
+      fileUrls.doc_curp || "",                    // [27]
+      fileUrls.doc_ine || "",                     // [28]
+      "",                                         // [29] Perfil Virtual URL
+      "",                                         // [30] Portal Edición Web
+      "Pendiente",                                // [31] Estatus Registro
+      "",                                         // [32] Log
+      ""                                          // [33] PDF Final
     ];
 
     await appendEnrollmentRow(rowData);
