@@ -169,3 +169,104 @@ export const getRowByFolio = async (folioId) => {
     throw error;
   }
 };
+
+/**
+ * Reads an enrollment record by Folio ID from the BD_Inscripciones sheet.
+ * 
+ * @param {string} folioId - The folio ID to search
+ * @returns {Object|null} Mapped enrollment data or null if not found
+ */
+export const getEnrollmentByFolio = async (folioId) => {
+  const clientData = getSheetsClient();
+  const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+
+  if (!clientData || !spreadsheetId) {
+    console.log(`\n📊  [Google Sheets Mock Mode]: Fetching row simulation for folio: ${folioId}`);
+    if (folioId === 'NON-EXISTENT' || folioId === 'not-found') {
+      return null;
+    }
+    return {
+      sede: 'UDU',
+      folio: folioId,
+      nombre: 'Juan',
+      paterno: 'Perez',
+      materno: 'Lopez',
+      sexo: 'Masculino',
+      edad: '8',
+      fechaNacimiento: '2018-05-20',
+      tutor: 'Juan Perez Padre',
+      telefonoTutor: '1234567890',
+      correo: 'padre@gmail.com',
+      contactoEmergencia: 'Maria Lopez',
+      telefonoEmergencia: '0987654321',
+      alergias: 'Ninguna',
+      padecimientos: 'Ninguna',
+      sangre: 'O+',
+      auth1Nombre: 'Autorizado Uno',
+      auth1Telefono: '1111111111',
+      auth1FotoUrl: 'https://drive.google.com/mock-file/' + folioId + '/auth1_photo_auth1.jpg',
+      auth2Nombre: 'Autorizado Dos',
+      auth2Telefono: '2222222222',
+      auth2FotoUrl: 'https://drive.google.com/mock-file/' + folioId + '/auth2_photo_auth2.jpg',
+      auth3Nombre: 'Autorizado Tres',
+      auth3Telefono: '3333333333',
+      auth3FotoUrl: 'https://drive.google.com/mock-file/' + folioId + '/auth3_photo_auth3.jpg',
+      fotoUrl: 'https://drive.google.com/mock-file/' + folioId + '/child_photo_child.jpg',
+      estatus: 'Pendiente'
+    };
+  }
+
+  const { sheets, auth } = clientData;
+
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: 'BD_Inscripciones!A:AH',
+      auth
+    });
+
+    const rows = response.data.values;
+    if (!rows || rows.length === 0) {
+      return null;
+    }
+
+    // Find row where index [1] (Folio) matches folioId exactly
+    const row = rows.find(r => r[1] === folioId);
+    if (!row) {
+      return null;
+    }
+
+    return {
+      sede: row[0] || '',
+      folio: row[1] || '',
+      nombre: row[3] || '',
+      paterno: row[4] || '',
+      materno: row[5] || '',
+      sexo: row[6] || '',
+      edad: row[7] || '',
+      fechaNacimiento: row[8] || '',
+      tutor: row[9] || '',
+      telefonoTutor: row[10] || '',
+      correo: row[11] || '',
+      contactoEmergencia: row[12] || '',
+      telefonoEmergencia: row[13] || '',
+      alergias: row[14] || '',
+      padecimientos: row[15] || '',
+      sangre: row[16] || '',
+      auth1Nombre: row[17] || '',
+      auth1Telefono: row[18] || '',
+      auth1FotoUrl: row[19] || '',
+      auth2Nombre: row[20] || '',
+      auth2Telefono: row[21] || '',
+      auth2FotoUrl: row[22] || '',
+      auth3Nombre: row[23] || '',
+      auth3Telefono: row[24] || '',
+      auth3FotoUrl: row[25] || '',
+      fotoUrl: row[26] || '',
+      estatus: row[31] || 'Pendiente'
+    };
+  } catch (error) {
+    console.error('[Google Sheets Service Error]: Failed to fetch enrollment by folio:', error.message);
+    throw error;
+  }
+};

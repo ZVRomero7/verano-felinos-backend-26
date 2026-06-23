@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import { handleEnrollment } from '../controllers/enrollController.js';
-import { updateFiles } from '../controllers/profileController.js';
+import { getProfile, updateFiles } from '../controllers/profileController.js';
 
 const router = express.Router();
 
@@ -25,6 +25,9 @@ const uploadFields = upload.fields([
 
 // API Route: Enrollment submission
 router.post('/enroll', uploadFields, handleEnrollment);
+
+// API Route: Get participant profile by folio
+router.get('/profile/:folio', getProfile);
 
 // API Route: Update files for a specific enrollment folio
 router.put('/edit/:folio_id', uploadFields, updateFiles);

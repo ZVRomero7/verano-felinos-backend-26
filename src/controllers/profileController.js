@@ -1,19 +1,19 @@
-import { getRowByFolio } from '../services/googleSheetsService.js';
+import { getRowByFolio, getEnrollmentByFolio } from '../services/googleSheetsService.js';
 
 /**
  * Controller to handle digital profile rendering and management.
  */
 export const getProfile = async (req, res) => {
   try {
-    const { folio_id } = req.params;
-    console.log(`[Profile Controller]: Fetching profile for folio: ${folio_id}`);
-    const profile = await getRowByFolio(folio_id);
+    const folio = req.params.folio || req.params.folio_id;
+    console.log(`[Profile Controller]: Fetching profile for folio: ${folio}`);
+    const profile = await getEnrollmentByFolio(folio);
 
-    return res.json({
-      success: true,
-      message: 'Profile data retrieved (stub)',
-      data: profile
-    });
+    if (!profile) {
+      return res.status(404).json({ error: 'Folio no encontrado' });
+    }
+
+    return res.json(profile);
   } catch (error) {
     console.error('[Profile Controller Error - getProfile]:', error);
     return res.status(500).json({

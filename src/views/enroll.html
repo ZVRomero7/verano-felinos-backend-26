@@ -497,17 +497,17 @@
                 <!-- Guardian 2 -->
                 <div class="bg-gray-50 border border-gray-200 p-4 rounded-medium flex flex-col justify-between">
                   <div>
-                    <span class="text-xs font-bold text-secondary uppercase mb-2 block">Autorizado 2</span>
-                    <input type="text" name="auth2Nombre" required placeholder="Nombre Completo *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-2 focus:ring-1 focus:ring-primary focus:border-primary" />
-                    <input type="tel" name="auth2Telefono" required placeholder="Teléfono *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-3 focus:ring-1 focus:ring-primary focus:border-primary" />
+                    <span class="text-xs font-bold text-secondary uppercase mb-2 block">Autorizado 2 (Opcional)</span>
+                    <input type="text" name="auth2Nombre" placeholder="Nombre Completo" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-2 focus:ring-1 focus:ring-primary focus:border-primary" />
+                    <input type="tel" name="auth2Telefono" placeholder="Teléfono" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-3 focus:ring-1 focus:ring-primary focus:border-primary" />
                   </div>
                   
                   <label for="auth2_photo" id="auth2_dropzone" class="border border-dashed border-gray-300 rounded-lg p-2 hover:bg-gray-100/50 cursor-pointer relative h-24 flex items-center justify-center text-center overflow-hidden">
-                    <input type="file" name="auth2_photo" id="auth2_photo" required accept="image/*" class="sr-only" onchange="handlePhotoSelected(this, 'auth2_dropzone', 'auth2_prompt', 'auth2_preview')" />
+                    <input type="file" name="auth2_photo" id="auth2_photo" accept="image/*" class="sr-only" onchange="handlePhotoSelected(this, 'auth2_dropzone', 'auth2_prompt', 'auth2_preview')" />
                     <img id="auth2_preview" class="absolute inset-0 w-full h-full object-cover hidden" />
                     <div id="auth2_prompt" class="relative z-10 flex flex-col items-center pointer-events-none">
                       <span class="material-symbols-outlined text-gray-500 text-lg">add_a_photo</span>
-                      <span class="text-[10px] text-gray-500 font-medium">Subir Foto *</span>
+                      <span class="text-[10px] text-gray-500 font-medium">Subir Foto (Opcional)</span>
                     </div>
                   </label>
                 </div>
@@ -515,17 +515,17 @@
                 <!-- Guardian 3 -->
                 <div class="bg-gray-50 border border-gray-200 p-4 rounded-medium flex flex-col justify-between">
                   <div>
-                    <span class="text-xs font-bold text-secondary uppercase mb-2 block">Autorizado 3</span>
-                    <input type="text" name="auth3Nombre" required placeholder="Nombre Completo *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-2 focus:ring-1 focus:ring-primary focus:border-primary" />
-                    <input type="tel" name="auth3Telefono" required placeholder="Teléfono *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-3 focus:ring-1 focus:ring-primary focus:border-primary" />
+                    <span class="text-xs font-bold text-secondary uppercase mb-2 block">Autorizado 3 (Opcional)</span>
+                    <input type="text" name="auth3Nombre" placeholder="Nombre Completo" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-2 focus:ring-1 focus:ring-primary focus:border-primary" />
+                    <input type="tel" name="auth3Telefono" placeholder="Teléfono" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-3 focus:ring-1 focus:ring-primary focus:border-primary" />
                   </div>
                   
                   <label for="auth3_photo" id="auth3_dropzone" class="border border-dashed border-gray-300 rounded-lg p-2 hover:bg-gray-100/50 cursor-pointer relative h-24 flex items-center justify-center text-center overflow-hidden">
-                    <input type="file" name="auth3_photo" id="auth3_photo" required accept="image/*" class="sr-only" onchange="handlePhotoSelected(this, 'auth3_dropzone', 'auth3_prompt', 'auth3_preview')" />
+                    <input type="file" name="auth3_photo" id="auth3_photo" accept="image/*" class="sr-only" onchange="handlePhotoSelected(this, 'auth3_dropzone', 'auth3_prompt', 'auth3_preview')" />
                     <img id="auth3_preview" class="absolute inset-0 w-full h-full object-cover hidden" />
                     <div id="auth3_prompt" class="relative z-10 flex flex-col items-center pointer-events-none">
                       <span class="material-symbols-outlined text-gray-500 text-lg">add_a_photo</span>
-                      <span class="text-[10px] text-gray-500 font-medium">Subir Foto *</span>
+                      <span class="text-[10px] text-gray-500 font-medium">Subir Foto (Opcional)</span>
                     </div>
                   </label>
                 </div>
@@ -861,16 +861,14 @@
         if (ine.files.length === 0) return showValidationError('Debes cargar la identificación oficial del tutor (INE).');
         if (childPhoto.files.length === 0) return showValidationError('Debes subir la foto del rostro del menor.');
         
-        // 3 Authorized guardians name, phone, and photos are required
-        for (let i = 1; i <= 3; i++) {
-          const authName = document.getElementsByName(`auth${i}Nombre`)[0];
-          const authPhone = document.getElementsByName(`auth${i}Telefono`)[0];
-          const authPhoto = document.getElementById(`auth${i}_photo`);
-          
-          if (!authName.value.trim()) return showValidationError(`Ingresa el nombre completo de la Persona Autorizada ${i}.`);
-          if (!authPhone.value.trim()) return showValidationError(`Ingresa el teléfono de la Persona Autorizada ${i}.`);
-          if (authPhoto.files.length === 0) return showValidationError(`Debes subir la foto de la Persona Autorizada ${i}.`);
-        }
+        // Only Persona Autorizada 1 is mandatory, 2 and 3 are optional
+        const auth1Name = document.getElementsByName('auth1Nombre')[0];
+        const auth1Phone = document.getElementsByName('auth1Telefono')[0];
+        const auth1Photo = document.getElementById('auth1_photo');
+        
+        if (!auth1Name.value.trim()) return showValidationError('Ingresa el nombre completo de la Persona Autorizada 1.');
+        if (!auth1Phone.value.trim()) return showValidationError('Ingresa el teléfono de la Persona Autorizada 1.');
+        if (auth1Photo.files.length === 0) return showValidationError('Debes subir la foto de la Persona Autorizada 1.');
       }
 
       return true;

@@ -24,4 +24,7 @@ router.get('/perfil/:folio_id', getProfile);
 // Web Route: Participant file updating portal
 router.get('/editar/:folio_id', getEditPortal);
 
+// Alias API Route (direct root mapping)
+router.get('/api/profile/:folio', getProfile);
+
 export default router;
