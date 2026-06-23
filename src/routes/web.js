@@ -19,7 +19,9 @@ router.get('/', (req, res) => {
 });
 
 // Web Route: View participant profile in real time
-router.get('/perfil/:folio_id', getProfile);
+router.get('/perfil/:folio_id', (req, res) => {
+  res.sendFile(path.join(__dirname, '../views/profile.html'));
+});
 
 // Web Route: Participant file updating portal
 router.get('/editar/:folio_id', getEditPortal);

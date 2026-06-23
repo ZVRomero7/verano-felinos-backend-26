@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Perfil Virtual - Verano Felinos 2026</title>
+  
+  <!-- CSS & Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <!-- SweetAlert2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <style>
+    :root {
+      --primary: #1D5FA5;
+      --primary-dark: #004784;
+      --accent-green: #10B981;
+      --accent-red: #EF4444;
+      --accent-orange: #F59E0B;
+      --bg-gray: #F8F9FA;
+      --card-bg: #FFFFFF;
+      --text-dark: #212529;
+      --text-muted: #6D7680;
+      --border-color: #E9ECEF;
+      --soft-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.02);
+      --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-gray);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 40px;
+    }
+
+    /* Top Background Accent */
+    .bg-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 240px;
+      background-color: var(--primary);
+      background-image: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      z-index: 1;
+    }
+
+    /* Main Container */
+    .container {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 480px;
+      margin-top: 100px;
+      padding: 0 16px;
+    }
+
+    /* Main Card */
+    .profile-card {
+      background: var(--card-bg);
+      border-radius: 28px;
+      box-shadow: var(--soft-shadow);
+      padding: 32px 24px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    /* Avatar Container */
+    .avatar-wrapper {
+      position: relative;
+      margin-top: -90px;
+      margin-bottom: 16px;
+      z-index: 3;
+    }
+
+    .avatar {
+      width: 124px;
+      height: 124px;
+      border-radius: 50%;
+      object-cover: cover;
+      border: 6px solid var(--card-bg);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      background-color: var(--border-color);
+      object-fit: cover;
+    }
+
+    .avatar-placeholder {
+      width: 124px;
+      height: 124px;
+      border-radius: 50%;
+      border: 6px solid var(--card-bg);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      background-color: var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+    }
+
+    /* Header Profile Info */
+    .profile-name {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      text-align: center;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: rgba(29, 95, 165, 0.08);
+      color: var(--primary);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pill-badge span {
+      font-size: 14px;
+    }
+
+    /* Tab Controls */
+    .tabs-nav {
+      display: flex;
+      background-color: #F1F3F5;
+      padding: 6px;
+      border-radius: 16px;
+      width: 100%;
+      margin-bottom: 24px;
+      gap: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 10px 0;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .tab-btn.active {
+      background-color: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(29, 95, 165, 0.2);
+    }
+
+    .tab-btn:hover:not(.active) {
+      background-color: rgba(0, 0, 0, 0.03);
+      color: var(--text-dark);
+    }
+
+    /* Tab Contents */
+    .tab-content {
+      width: 100%;
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Soft UI Content Cards */
+    .info-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .info-card {
+      background-color: #FAFBFD;
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .info-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background-color: rgba(29, 95, 165, 0.08);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .info-card-icon.red {
+      background-color: rgba(239, 68, 68, 0.08);
+      color: var(--accent-red);
+    }
+
+    .info-card-icon.orange {
+      background-color: rgba(245, 158, 11, 0.08);
+      color: var(--accent-orange);
+    }
+
+    .info-card-icon.green {
+      background-color: rgba(16, 185, 129, 0.08);
+      color: var(--accent-green);
+    }
+
+    .info-card-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .info-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .info-value {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    /* Estatus Badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .status-badge.green {
+      background-color: rgba(16, 185, 129, 0.12);
+      color: var(--accent-green);
+    }
+
+    .status-badge.orange {
+      background-color: rgba(245, 158, 11, 0.12);
+      color: var(--accent-orange);
+    }
+
+    /* Authorized Card styling */
+    .auth-card {
+      background-color: #FAFBFD;
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .auth-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .auth-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      object-fit: cover;
+      background-color: var(--border-color);
+      border: 2px solid #FFF;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .auth-avatar-placeholder {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background-color: rgba(29, 95, 165, 0.08);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #FFF;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .auth-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .auth-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .auth-phone {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .call-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background-color: var(--accent-green);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .call-btn:hover {
+      transform: scale(1.08);
+      background-color: #059669;
+    }
+
+    .call-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Skeleton Loader */
+    .skeleton {
+      animation: skeleton-loading 1.5s infinite linear alternate;
+    }
+
+    @keyframes skeleton-loading {
+      0% { background-color: #EAECEF; }
+      100% { background-color: #F5F7F8; }
+    }
+
+    .skeleton-avatar {
+      width: 124px;
+      height: 124px;
+      border-radius: 50%;
+      margin: 0 auto;
+    }
+
+    .skeleton-text {
+      height: 16px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .skeleton-name {
+      width: 200px;
+      height: 24px;
+      margin: 0 auto 12px auto;
+    }
+
+    .skeleton-badge {
+      width: 100px;
+      height: 24px;
+      border-radius: 12px;
+      margin: 0 auto 24px auto;
+    }
+
+    /* Swal Styling Overrides */
+    .swal2-popup {
+      border-radius: 24px !important;
+      font-family: 'Inter', sans-serif !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Banner -->
+  <div class="bg-header"></div>
+
+  <!-- Main Container -->
+  <div class="container">
+    
+    <!-- Profile Card Wrapper -->
+    <div class="profile-card" id="profileCard">
+      
+      <!-- Loading Skeleton Screen -->
+      <div id="loadingState" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        <div class="avatar-wrapper">
+          <div class="skeleton-avatar skeleton"></div>
+        </div>
+        <div class="skeleton-name skeleton"></div>
+        <div class="skeleton-badge skeleton"></div>
+        <div class="tabs-nav">
+          <div class="tab-btn skeleton" style="height: 36px; border-radius: 12px; flex: 1;"></div>
+          <div class="tab-btn skeleton" style="height: 36px; border-radius: 12px; flex: 1;"></div>
+          <div class="tab-btn skeleton" style="height: 36px; border-radius: 12px; flex: 1;"></div>
+        </div>
+        <div class="info-group">
+          <div class="info-card" style="height: 76px; width: 100%; border: none; background: #EAECEF; opacity: 0.5;"></div>
+          <div class="info-card" style="height: 76px; width: 100%; border: none; background: #EAECEF; opacity: 0.5;"></div>
+          <div class="info-card" style="height: 76px; width: 100%; border: none; background: #EAECEF; opacity: 0.5;"></div>
+        </div>
+      </div>
+
+      <!-- Loaded Profile Data (Hidden by default) -->
+      <div id="loadedState" style="width: 100%; display: none; flex-direction: column; align-items: center;">
+        
+        <!-- Profile Header -->
+        <div class="avatar-wrapper">
+          <img id="profileImage" src="" alt="Foto del Inscrito" class="avatar" onerror="handleImageError(this)"/>
+          <div id="avatarPlaceholder" class="avatar-placeholder hidden">
+            <span class="material-symbols-outlined" style="font-size: 48px;">person</span>
+          </div>
+        </div>
+        
+        <h1 class="profile-name" id="fullName">Cargando Nombre...</h1>
+        
+        <div class="pill-badge">
+          <span class="material-symbols-outlined">verified</span>
+          Verano 2026
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs-nav">
+          <button class="tab-btn active" onclick="switchTab('general', this)">GENERAL</button>
+          <button class="tab-btn" onclick="switchTab('medico', this)">MÉDICO</button>
+          <button class="tab-btn" onclick="switchTab('autorizados', this)">AUTORIZADOS</button>
+        </div>
+
+        <!-- Tab 1: General Info -->
+        <div class="tab-content active" id="tabContent_general">
+          <div class="info-group">
+            
+            <div class="info-card">
+              <div class="info-card-icon">
+                <span class="material-symbols-outlined">pin</span>
+              </div>
+              <div class="info-card-details">
+                <div class="info-label">Folio de Registro</div>
+                <div class="info-value" id="field_folio">-</div>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-card-icon">
+                <span class="material-symbols-outlined">corporate_fare</span>
+              </div>
+              <div class="info-card-details">
+                <div class="info-label">Sede de Inscripción</div>
+                <div class="info-value" id="field_sede">-</div>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-card-icon">
+                <span class="material-symbols-outlined">cake</span>
+              </div>
+              <div class="info-card-details">
+                <div class="info-label">Edad / Fecha Nac.</div>
+                <div class="info-value" id="field_edad_nac">-</div>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-card-icon" id="statusIconBg">
+                <span class="material-symbols-outlined" id="statusIcon">info</span>
+              </div>
+              <div class="info-card-details">
+                <div class="info-label">Estatus Registro</div>
+                <div>
+                  <span class="status-badge" id="field_estatus">-</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-card-icon">
+                <span class="material-symbols-outlined">supervisor_account</span>
+              </div>
+              <div class="info-card-details">
+                <div class="info-label">Tutor Responsable</div>
+                <div class="info-value" id="field_tutor">-</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tab 2: Medical Info -->
+        <div class="tab-content" id="tabContent_medico">
+          <div class="info-group">
+
+            <div class="info-card">
+              <div class="info-card-icon red">
+                <span class="material-symbols-outlined">bloodtype</span>
+              </div>
+              <div class="info-card-details">
+                <div class="info-label">Tipo de Sangre</div>
+                <div class="info-value" id="field_sangre">-</div>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-card-icon orange">
+                <span class="material-symbols-outlined">warning</span>
+              </div>
+              <div class="info-card-details">
+                <div class="info-label">Alergias</div>
+                <div class="info-value" id="field_alergias">-</div>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-card-icon orange">
+                <span class="material-symbols-outlined">clinical_notes</span>
+              </div>
+              <div class="info-card-details">
+                <div class="info-label">Padecimientos Crónicos</div>
+                <div class="info-value" id="field_padecimientos">-</div>
+              </div>
+            </div>
+
+            <!-- Emergency Card -->
+            <div class="info-card" style="border-left: 4px solid var(--accent-green);">
+              <div class="info-card-icon green">
+                <span class="material-symbols-outlined">emergency</span>
+              </div>
+              <div class="info-card-details">
+                <div class="info-label">Contacto de Emergencia</div>
+                <div class="info-value" id="field_emergencia_nombre">-</div>
+                <div class="info-value" id="field_emergencia_tel" style="font-size: 0.8rem; font-weight: 500; color: var(--text-muted);"></div>
+              </div>
+              <a href="" id="btn_emergencia_call" class="call-btn">
+                <span class="material-symbols-outlined">call</span>
+              </a>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tab 3: Authorized Guardians -->
+        <div class="tab-content" id="tabContent_autorizados">
+          <div class="info-group" id="auth_cards_container">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Extract folio_id from URL path e.g. /perfil/UDU-26-99310
+    const pathParts = window.location.pathname.split('/');
+    const folioId = pathParts[pathParts.length - 1];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!folioId || folioId === 'perfil') {
+        showError('No se proporcionó un Folio ID en la URL.');
+        return;
+      }
+      loadProfileData(folioId);
+    });
+
+    async function loadProfileData(folio) {
+      try {
+        const response = await fetch(`/api/profile/${folio}`);
+        if (!response.ok) {
+          if (response.status === 404) {
+            showError('El folio de inscripción proporcionado no existe en nuestro sistema.');
+          } else {
+            showError('Error al recuperar los datos del perfil.');
+          }
+          return;
+        }
+
+        const data = await response.json();
+        renderProfile(data);
+      } catch (error) {
+        console.error("Fetch Error:", error);
+        showError('No se pudo establecer conexión con el servidor.');
+      }
+    }
+
+    function renderProfile(data) {
+      // 1. Photo and name
+      const fullName = `${data.nombre} ${data.paterno} ${data.materno}`.trim();
+      document.getElementById('fullName').textContent = fullName;
+      
+      const img = document.getElementById('profileImage');
+      const placeholder = document.getElementById('avatarPlaceholder');
+      if (data.fotoUrl) {
+        img.src = data.fotoUrl;
+        img.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+      } else {
+        img.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+      }
+
+      // 2. Tab: General
+      document.getElementById('field_folio').textContent = data.folio;
+      
+      document.getElementById('field_sede').textContent = data.sede || '';
+
+      document.getElementById('field_edad_nac').textContent = `${data.edad} años (${formatBirthDate(data.fechaNacimiento)})`;
+      document.getElementById('field_tutor').textContent = `${data.tutor} (${data.telefonoTutor})`;
+
+      // Status styling
+      const estatus = data.estatus || 'Pendiente';
+      const statusBadge = document.getElementById('field_estatus');
+      statusBadge.textContent = estatus;
+      
+      const statusIcon = document.getElementById('statusIcon');
+      const statusIconBg = document.getElementById('statusIconBg');
+
+      if (estatus.toLowerCase() === 'confirmado' || estatus.toLowerCase() === 'activo' || estatus.toLowerCase() === 'confirmado/activo') {
+        statusBadge.className = 'status-badge green';
+        statusIcon.textContent = 'check_circle';
+        statusIconBg.className = 'info-card-icon green';
+      } else {
+        statusBadge.className = 'status-badge orange';
+        statusIcon.textContent = 'hourglass_empty';
+        statusIconBg.className = 'info-card-icon orange';
+      }
+
+      // 3. Tab: Medico
+      document.getElementById('field_sangre').textContent = data.sangre || 'No especificado';
+      document.getElementById('field_alergias').textContent = data.alergias || 'Ninguna';
+      document.getElementById('field_padecimientos').textContent = data.padecimientos || 'Ninguno';
+      
+      document.getElementById('field_emergencia_nombre').textContent = data.contactoEmergencia || '-';
+      
+      const emergencyTel = data.telefonoEmergencia || '';
+      document.getElementById('field_emergencia_tel').textContent = emergencyTel;
+      
+      const emergencyCall = document.getElementById('btn_emergencia_call');
+      if (emergencyTel) {
+        emergencyCall.href = `tel:${emergencyTel}`;
+        emergencyCall.style.display = 'flex';
+      } else {
+        emergencyCall.style.display = 'none';
+      }
+
+      // 4. Tab: Autorizados (auth1, auth2, auth3)
+      const container = document.getElementById('auth_cards_container');
+      container.innerHTML = ''; // Clear stub
+
+      let renderedAuthCount = 0;
+      for (let i = 1; i <= 3; i++) {
+        const nameKey = `auth${i}Nombre`;
+        const phoneKey = `auth${i}Telefono`;
+        const photoKey = `auth${i}FotoUrl`;
+
+        const authName = data[nameKey];
+        const authPhone = data[phoneKey];
+        const authPhoto = data[photoKey];
+
+        // Check if authorized person exists
+        if (authName && authName.trim()) {
+          renderedAuthCount++;
+          const card = document.createElement('div');
+          card.className = 'auth-card';
+          
+          let photoHTML = `<div class="auth-avatar-placeholder"><span class="material-symbols-outlined">person</span></div>`;
+          if (authPhoto) {
+            photoHTML = `<img src="${authPhoto}" alt="Foto ${authName}" class="auth-avatar" onerror="handleImageError(this)"/>`;
+          }
+
+          card.innerHTML = `
+            <div class="auth-left">
+              ${photoHTML}
+              <div class="auth-info">
+                <div class="info-label">Autorizado ${i}</div>
+                <div class="auth-name">${authName}</div>
+                <div class="auth-phone">${authPhone || 'Sin teléfono'}</div>
+              </div>
+            </div>
+            ${authPhone ? `
+              <a href="tel:${authPhone}" class="call-btn">
+                <span class="material-symbols-outlined">call</span>
+              </a>
+            ` : ''}
+          `;
+          container.appendChild(card);
+        }
+      }
+
+      if (renderedAuthCount === 0) {
+        container.innerHTML = `
+          <div class="info-card" style="justify-content: center; text-align: center; color: var(--text-muted);">
+            Ninguna persona autorizada registrada.
+          </div>
+        `;
+      }
+
+      // Swap loader and content views
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('loadedState').style.display = 'flex';
+    }
+
+    // Switch Tab active class and visible content
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById(`tabContent_${tabId}`).classList.add('active');
+    }
+
+    function formatBirthDate(dateStr) {
+      if (!dateStr) return '-';
+      try {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return dateStr;
+        
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const year = date.getUTCFullYear();
+        return `${day}/${month}/${year}`;
+      } catch (e) {
+        return dateStr;
+      }
+    }
+
+    function handleImageError(img) {
+      const parent = img.parentNode;
+      const placeholder = parent.querySelector('.avatar-placeholder, .auth-avatar-placeholder');
+      if (placeholder) {
+        img.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+      } else {
+        img.style.display = 'none';
+      }
+    }
+
+    function showError(message) {
+      document.getElementById('loadingState').style.display = 'none';
+      Swal.fire({
+        title: 'Folio Inexistente',
+        text: message,
+        icon: 'error',
+        confirmButtonText: 'Regresar a Registro',
+        confirmButtonColor: '#1D5FA5',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = '/enroll';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
