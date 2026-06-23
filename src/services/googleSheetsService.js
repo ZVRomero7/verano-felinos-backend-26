@@ -38,7 +38,7 @@ export const appendEnrollmentRow = async (rowData) => {
   const clientData = getSheetsClient();
   const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 
-  // Values in order of columns in Google Sheets (Strict 38 columns mapping)
+  // Values in order of columns in Google Sheets (Strict 34 columns mapping)
   const values = [
     [
       rowData.sedeId || '',                     // [0] Sede
@@ -53,32 +53,28 @@ export const appendEnrollmentRow = async (rowData) => {
       rowData.tutorName || '',                  // [9] Nombre del Tutor
       rowData.tutorPhone || '',                 // [10] Teléfono del Tutor
       rowData.tutorEmail || '',                 // [11] Correo Electrónico del Tutor (Columna L)
-      '',                                       // [12] Madre Tel
-      rowData.emergencyContactName || '',       // [13] Contacto Emergencia
-      rowData.emergencyContactPhone || '',      // [14] Tel Emergencia
-      rowData.allergies || 'Ninguna',           // [15] Alergias Generales
-      '',                                       // [16] Med
-      '',                                       // [17] Lesiones
-      '',                                       // [18] Tratamientos
-      rowData.medicalObservations || 'Ninguna', // [19] Padecimientos Crónicos/Observaciones
-      rowData.bloodType || '',                  // [20] Tipo de Sangre
-      rowData.auth1Name || '',                  // [21] Auth 1: Nombre
-      rowData.auth1Phone || '',                 // [22] Auth 1: Tel
-      rowData.auth1PhotoUrl || '',              // [23] Auth 1: FotoURL
-      rowData.auth2Name || '',                  // [24] Auth 2: Nombre
-      rowData.auth2Phone || '',                 // [25] Auth 2: Tel
-      rowData.auth2PhotoUrl || '',              // [26] Auth 2: FotoURL
-      rowData.auth3Name || '',                  // [27] Auth 3: Nombre
-      rowData.auth3Phone || '',                 // [28] Auth 3: Tel
-      rowData.auth3PhotoUrl || '',              // [29] Auth 3: FotoURL
-      rowData.childPhotoUrl || '',              // [30] Foto Menor URL (Columna AE)
-      rowData.docCurpUrl || '',                 // [31] CURP URL (Columna AF)
-      rowData.docIneUrl || '',                  // [32] INE URL (Columna AG)
-      '',                                       // [33] Perfil Virtual
-      '',                                       // [34] Portal Edición
-      rowData.status || 'Pendiente',            // [35] 'Pendiente' (Estatus)
-      '',                                       // [36] Log
-      ''                                        // [37] Enlace PDF
+      rowData.emergencyContactName || '',       // [12] Contacto Emergencia
+      rowData.emergencyContactPhone || '',      // [13] Tel Emergencia
+      rowData.allergies || 'Ninguna',           // [14] Alergias Generales
+      rowData.medicalObservations || 'Ninguna', // [15] Padecimientos Crónicos/Observaciones
+      rowData.bloodType || '',                  // [16] Tipo de Sangre
+      rowData.auth1Name || '',                  // [17] Auth 1: Nombre
+      rowData.auth1Phone || '',                 // [18] Auth 1: Tel
+      rowData.auth1PhotoUrl || '',              // [19] Auth 1: FotoURL
+      rowData.auth2Name || '',                  // [20] Auth 2: Nombre
+      rowData.auth2Phone || '',                 // [21] Auth 2: Tel
+      rowData.auth2PhotoUrl || '',              // [22] Auth 2: FotoURL
+      rowData.auth3Name || '',                  // [23] Auth 3: Nombre
+      rowData.auth3Phone || '',                 // [24] Auth 3: Tel
+      rowData.auth3PhotoUrl || '',              // [25] Auth 3: FotoURL
+      rowData.childPhotoUrl || '',              // [26] Foto Menor URL
+      rowData.docCurpUrl || '',                 // [27] CURP URL
+      rowData.docIneUrl || '',                  // [28] INE URL
+      '',                                       // [29] Perfil Virtual Placeholder
+      '',                                       // [30] Portal Edición Placeholder
+      rowData.status || 'Pendiente',            // [31] Estatus Registro
+      '',                                       // [32] Log Placeholder
+      ''                                        // [33] Enlace PDF Placeholder
     ]
   ];
 
@@ -96,7 +92,7 @@ export const appendEnrollmentRow = async (rowData) => {
   try {
     const response = await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: 'A:AL', // Append to sheet starting from column A up to AL (38 columns)
+      range: 'A:AH', // Append to sheet starting from column A up to AH (34 columns)
       valueInputOption: 'USER_ENTERED',
       insertDataOption: 'INSERT_ROWS',
       requestBody: {
@@ -161,7 +157,7 @@ export const getRowByFolio = async (folioId) => {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: 'A:AL',
+      range: 'A:AH',
       auth
     });
     
@@ -189,24 +185,24 @@ export const getRowByFolio = async (folioId) => {
       tutorName: row[9] || '',
       tutorPhone: row[10] || '',
       tutorEmail: row[11] || '',
-      emergencyContactName: row[13] || '',
-      emergencyContactPhone: row[14] || '',
-      allergies: row[15] || '',
-      medicalObservations: row[19] || '',
-      bloodType: row[20] || '',
-      auth1Name: row[21] || '',
-      auth1Phone: row[22] || '',
-      auth1PhotoUrl: row[23] || '',
-      auth2Name: row[24] || '',
-      auth2Phone: row[25] || '',
-      auth2PhotoUrl: row[26] || '',
-      auth3Name: row[27] || '',
-      auth3Phone: row[28] || '',
-      auth3PhotoUrl: row[29] || '',
-      childPhotoUrl: row[30] || '',
-      docCurpUrl: row[31] || '',
-      docIneUrl: row[32] || '',
-      status: row[35] || 'Pendiente'
+      emergencyContactName: row[12] || '',
+      emergencyContactPhone: row[13] || '',
+      allergies: row[14] || '',
+      medicalObservations: row[15] || '',
+      bloodType: row[16] || '',
+      auth1Name: row[17] || '',
+      auth1Phone: row[18] || '',
+      auth1PhotoUrl: row[19] || '',
+      auth2Name: row[20] || '',
+      auth2Phone: row[21] || '',
+      auth2PhotoUrl: row[22] || '',
+      auth3Name: row[23] || '',
+      auth3Phone: row[24] || '',
+      auth3PhotoUrl: row[25] || '',
+      childPhotoUrl: row[26] || '',
+      docCurpUrl: row[27] || '',
+      docIneUrl: row[28] || '',
+      status: row[31] || 'Pendiente'
     };
   } catch (error) {
     console.error('[Google Sheets Service Error]: Failed to fetch row by folio:', error.message);
