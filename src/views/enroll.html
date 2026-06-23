@@ -236,7 +236,43 @@
             <div class="relative floating-label-input">
               <input type="text" name="child_name" id="child_name" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
               <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="child_name">
-                Nombre Completo del Menor *
+                Nombre(s) del Menor *
+              </label>
+            </div>
+
+            <!-- Child Last Name -->
+            <div class="relative floating-label-input">
+              <input type="text" name="child_last_name" id="child_last_name" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
+              <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="child_last_name">
+                Apellido Paterno *
+              </label>
+            </div>
+
+            <!-- Child Second Last Name -->
+            <div class="relative floating-label-input">
+              <input type="text" name="child_second_last_name" id="child_second_last_name" placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
+              <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="child_second_last_name">
+                Apellido Materno
+              </label>
+            </div>
+
+            <!-- Child Birth Date -->
+            <div class="relative floating-label-input">
+              <input type="date" name="child_birth_date" id="child_birth_date" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium text-on-surface" />
+              <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="child_birth_date">
+                Fecha de Nacimiento *
+              </label>
+            </div>
+
+            <!-- Child Gender -->
+            <div class="relative floating-label-input">
+              <select name="child_gender" id="child_gender" required class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium text-on-surface">
+                <option value="" disabled selected></option>
+                <option value="Masculino">Masculino</option>
+                <option value="Femenino">Femenino</option>
+              </select>
+              <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="child_gender">
+                Sexo *
               </label>
             </div>
 
@@ -277,6 +313,30 @@
                     <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="tutor_email">
                       Correo Electrónico *
                     </label>
+                    <small class="text-muted" style="display:block; margin-top:4px; font-size:0.85em;">A este correo enviaremos las instrucciones de pago y la responsiva.</small>
+                  </div>
+                </div>
+
+                <!-- Contacto de Emergencia -->
+                <div class="border-t border-gray-100 pt-4 mt-5">
+                  <h3 class="font-headline text-md font-semibold text-primary mb-3">Contacto de Emergencia</h3>
+                  
+                  <div class="space-y-5">
+                    <!-- Emergency Contact Name -->
+                    <div class="relative floating-label-input">
+                      <input type="text" name="emergency_contact_name" id="emergency_contact_name" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
+                      <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="emergency_contact_name">
+                        Nombre del Contacto de Emergencia *
+                      </label>
+                    </div>
+
+                    <!-- Emergency Contact Phone -->
+                    <div class="relative floating-label-input">
+                      <input type="tel" name="emergency_contact_phone" id="emergency_contact_phone" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
+                      <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="emergency_contact_phone">
+                        Teléfono de Emergencia *
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>
