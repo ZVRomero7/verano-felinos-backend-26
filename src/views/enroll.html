@@ -1014,26 +1014,60 @@
 
       const formData = new FormData(form);
 
-      // Populate backend-expected validation properties as duplicates
-      formData.append('sede_id', formData.get('sede') || '');
-      formData.append('child_gender', formData.get('sexo') || '');
-      formData.append('child_age', formData.get('edad') || '');
-      formData.append('child_birth_date', formData.get('fechaNacimiento') || '');
-      formData.append('tutor_name', formData.get('nombreTutor') || '');
-      formData.append('tutor_phone', formData.get('telefonoContacto') || '');
-      formData.append('tutor_email', formData.get('correoElectronico') || '');
-      formData.append('emergency_contact_name', formData.get('contactoEmergencia') || '');
-      formData.append('emergency_contact_phone', formData.get('telefonoEmergencia') || '');
-      formData.append('allergies', formData.get('alergiasMedicas') || 'Ninguna');
-      formData.append('medical_observations', formData.get('padecimientos') || 'Ninguna');
-      formData.append('blood_type', formData.get('tipoSangre') || '');
-      
-      formData.append('auth1_name', formData.get('auth1Nombre') || '');
-      formData.append('auth1_phone', formData.get('auth1Telefono') || '');
-      formData.append('auth2_name', formData.get('auth2Nombre') || '');
-      formData.append('auth2_phone', formData.get('auth2Telefono') || '');
-      formData.append('auth3_name', formData.get('auth3Nombre') || '');
-      formData.append('auth3_phone', formData.get('auth3Telefono') || '');
+      // Explicitly set both Spanish and English keys from the DOM values to ensure they are captured correctly (bypassing disabled fields or browser serialization differences)
+      const getValue = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value : '';
+      };
+      const getByNameValue = (name) => {
+        const el = document.getElementsByName(name)[0];
+        return el ? el.value : '';
+      };
+
+      formData.set('sede', getValue('sede_id'));
+      formData.set('sede_id', getValue('sede_id'));
+      formData.set('nombreInscrito', getValue('nombreInscrito'));
+      formData.set('child_name', getValue('nombreInscrito'));
+      formData.set('sexo', getValue('child_gender'));
+      formData.set('child_gender', getValue('child_gender'));
+      formData.set('edad', getValue('child_age'));
+      formData.set('child_age', getValue('child_age'));
+      formData.set('fechaNacimiento', getValue('child_birth_date'));
+      formData.set('child_birth_date', getValue('child_birth_date'));
+
+      formData.set('nombreTutor', getValue('tutor_name'));
+      formData.set('tutor_name', getValue('tutor_name'));
+      formData.set('telefonoContacto', getValue('tutor_phone'));
+      formData.set('tutor_phone', getValue('tutor_phone'));
+      formData.set('correoElectronico', getValue('tutor_email'));
+      formData.set('tutor_email', getValue('tutor_email'));
+
+      formData.set('contactoEmergencia', getValue('emergency_contact_name'));
+      formData.set('emergency_contact_name', getValue('emergency_contact_name'));
+      formData.set('telefonoEmergencia', getValue('emergency_contact_phone'));
+      formData.set('emergency_contact_phone', getValue('emergency_contact_phone'));
+
+      formData.set('tipoSangre', getValue('blood_type'));
+      formData.set('blood_type', getValue('blood_type'));
+      formData.set('alergiasMedicas', getValue('allergiesInput') || 'Ninguna');
+      formData.set('allergies', getValue('allergiesInput') || 'Ninguna');
+      formData.set('padecimientos', getValue('medical_observations') || 'Ninguna');
+      formData.set('medical_observations', getValue('medical_observations') || 'Ninguna');
+
+      formData.set('auth1Nombre', getByNameValue('auth1Nombre'));
+      formData.set('auth1_name', getByNameValue('auth1Nombre'));
+      formData.set('auth1Telefono', getByNameValue('auth1Telefono'));
+      formData.set('auth1_phone', getByNameValue('auth1Telefono'));
+
+      formData.set('auth2Nombre', getByNameValue('auth2Nombre'));
+      formData.set('auth2_name', getByNameValue('auth2Nombre'));
+      formData.set('auth2Telefono', getByNameValue('auth2Telefono'));
+      formData.set('auth2_phone', getByNameValue('auth2Telefono'));
+
+      formData.set('auth3Nombre', getByNameValue('auth3Nombre'));
+      formData.set('auth3_name', getByNameValue('auth3Nombre'));
+      formData.set('auth3Telefono', getByNameValue('auth3Telefono'));
+      formData.set('auth3_phone', getByNameValue('auth3Telefono'));
       
       // Show loading modal using SweetAlert2
       Swal.fire({
