@@ -222,7 +222,7 @@
           <div class="space-y-5">
             <!-- Sede / Location Select -->
             <div class="relative floating-label-input">
-              <select name="sede_id" id="sede_id" required class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium text-on-surface">
+              <select name="sede" id="sede_id" required class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium text-on-surface">
                 <option value="" disabled selected></option>
                 <option value="CEFID">CEFID</option>
                 <option value="UDU">UDU</option>
@@ -242,7 +242,7 @@
 
             <!-- Child Birth Date -->
             <div class="relative floating-label-input">
-              <input type="date" name="child_birth_date" id="child_birth_date" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium text-on-surface" />
+              <input type="date" name="fechaNacimiento" id="child_birth_date" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium text-on-surface" />
               <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="child_birth_date">
                 Fecha de Nacimiento *
               </label>
@@ -250,7 +250,7 @@
 
             <!-- Child Gender -->
             <div class="relative floating-label-input">
-              <select name="child_gender" id="child_gender" required class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium text-on-surface">
+              <select name="sexo" id="child_gender" required class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium text-on-surface">
                 <option value="" disabled selected></option>
                 <option value="Masculino">Masculino</option>
                 <option value="Femenino">Femenino</option>
@@ -262,7 +262,7 @@
 
             <!-- Child Age -->
             <div class="relative floating-label-input">
-              <select name="child_age" id="child_age" required disabled class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium text-on-surface">
+              <select name="edad" id="child_age" required disabled class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium text-on-surface">
                 <option value="" disabled selected></option>
               </select>
               <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="child_age">
@@ -276,7 +276,7 @@
               <div class="space-y-5">
                 <!-- Tutor Name -->
                 <div class="relative floating-label-input">
-                  <input type="text" name="tutor_name" id="tutor_name" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
+                  <input type="text" name="nombreTutor" id="tutor_name" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
                   <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="tutor_name">
                     Nombre Completo del Tutor *
                   </label>
@@ -285,7 +285,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <!-- Tutor Phone -->
                   <div class="relative floating-label-input">
-                    <input type="tel" name="tutor_phone" id="tutor_phone" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
+                    <input type="tel" name="telefonoContacto" id="tutor_phone" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
                     <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="tutor_phone">
                       Teléfono de Contacto *
                     </label>
@@ -293,7 +293,7 @@
 
                   <!-- Tutor Email -->
                   <div class="relative floating-label-input">
-                    <input type="email" name="tutor_email" id="tutor_email" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
+                    <input type="email" name="correoElectronico" id="tutor_email" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
                     <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="tutor_email">
                       Correo Electrónico *
                     </label>
@@ -308,7 +308,7 @@
                   <div class="space-y-5">
                     <!-- Emergency Contact Name -->
                     <div class="relative floating-label-input">
-                      <input type="text" name="emergency_contact_name" id="emergency_contact_name" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
+                      <input type="text" name="contactoEmergencia" id="emergency_contact_name" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
                       <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="emergency_contact_name">
                         Nombre del Contacto de Emergencia *
                       </label>
@@ -316,7 +316,7 @@
 
                     <!-- Emergency Contact Phone -->
                     <div class="relative floating-label-input">
-                      <input type="tel" name="emergency_contact_phone" id="emergency_contact_phone" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
+                      <input type="tel" name="telefonoEmergencia" id="emergency_contact_phone" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
                       <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="emergency_contact_phone">
                         Teléfono de Emergencia *
                       </label>
@@ -347,7 +347,7 @@
           <div class="space-y-6">
             <!-- Blood Type -->
             <div class="relative floating-label-input">
-              <select name="blood_type" id="blood_type" required class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium text-on-surface">
+              <select name="tipoSangre" id="blood_type" required class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium text-on-surface">
                 <option value="" disabled selected></option>
                 <option value="O+">O Positivo (O+)</option>
                 <option value="O-">O Negativo (O-)</option>
@@ -381,7 +381,7 @@
               </div>
 
               <!-- Hidden input to hold selected values as comma-separated -->
-              <input type="hidden" name="allergies" id="allergiesInput" value="" />
+              <input type="hidden" name="alergiasMedicas" id="allergiesInput" value="" />
             </div>
 
             <!-- Critical Observations Textarea -->
@@ -390,7 +390,7 @@
                 <span class="material-symbols-outlined text-secondary">edit_note</span>
                 <label class="block text-sm font-semibold text-primary" for="medical_observations">Observaciones Críticas / Medicamentos en uso</label>
               </div>
-              <textarea name="medical_observations" id="medical_observations" maxlength="500" class="w-full h-32 p-4 rounded-xl border border-gray-300 focus:border-secondary focus:ring-0 text-on-surface transition-all placeholder:text-gray-400 custom-scrollbar resize-none text-sm" placeholder="Describa tratamientos activos, dosis de medicamentos o instrucciones de emergencia aquí..."></textarea>
+              <textarea name="padecimientos" id="medical_observations" maxlength="500" class="w-full h-32 p-4 rounded-xl border border-gray-300 focus:border-secondary focus:ring-0 text-on-surface transition-all placeholder:text-gray-400 custom-scrollbar resize-none text-sm" placeholder="Describa tratamientos activos, dosis de medicamentos o instrucciones de emergencia aquí..."></textarea>
               <div class="text-right text-xs text-on-surface-variant mt-1" id="charsCount">0 / 500 caracteres</div>
             </div>
           </div>
@@ -480,8 +480,8 @@
                 <div class="bg-gray-50 border border-gray-200 p-4 rounded-medium flex flex-col justify-between">
                   <div>
                     <span class="text-xs font-bold text-secondary uppercase mb-2 block">Autorizado 1</span>
-                    <input type="text" name="auth1_name" required placeholder="Nombre Completo *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-2 focus:ring-1 focus:ring-primary focus:border-primary" />
-                    <input type="tel" name="auth1_phone" required placeholder="Teléfono *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-3 focus:ring-1 focus:ring-primary focus:border-primary" />
+                    <input type="text" name="auth1Nombre" required placeholder="Nombre Completo *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-2 focus:ring-1 focus:ring-primary focus:border-primary" />
+                    <input type="tel" name="auth1Telefono" required placeholder="Teléfono *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-3 focus:ring-1 focus:ring-primary focus:border-primary" />
                   </div>
                   
                   <label for="auth1_photo" id="auth1_dropzone" class="border border-dashed border-gray-300 rounded-lg p-2 hover:bg-gray-100/50 cursor-pointer relative h-24 flex items-center justify-center text-center overflow-hidden">
@@ -498,8 +498,8 @@
                 <div class="bg-gray-50 border border-gray-200 p-4 rounded-medium flex flex-col justify-between">
                   <div>
                     <span class="text-xs font-bold text-secondary uppercase mb-2 block">Autorizado 2</span>
-                    <input type="text" name="auth2_name" required placeholder="Nombre Completo *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-2 focus:ring-1 focus:ring-primary focus:border-primary" />
-                    <input type="tel" name="auth2_phone" required placeholder="Teléfono *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-3 focus:ring-1 focus:ring-primary focus:border-primary" />
+                    <input type="text" name="auth2Nombre" required placeholder="Nombre Completo *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-2 focus:ring-1 focus:ring-primary focus:border-primary" />
+                    <input type="tel" name="auth2Telefono" required placeholder="Teléfono *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-3 focus:ring-1 focus:ring-primary focus:border-primary" />
                   </div>
                   
                   <label for="auth2_photo" id="auth2_dropzone" class="border border-dashed border-gray-300 rounded-lg p-2 hover:bg-gray-100/50 cursor-pointer relative h-24 flex items-center justify-center text-center overflow-hidden">
@@ -516,8 +516,8 @@
                 <div class="bg-gray-50 border border-gray-200 p-4 rounded-medium flex flex-col justify-between">
                   <div>
                     <span class="text-xs font-bold text-secondary uppercase mb-2 block">Autorizado 3</span>
-                    <input type="text" name="auth3_name" required placeholder="Nombre Completo *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-2 focus:ring-1 focus:ring-primary focus:border-primary" />
-                    <input type="tel" name="auth3_phone" required placeholder="Teléfono *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-3 focus:ring-1 focus:ring-primary focus:border-primary" />
+                    <input type="text" name="auth3Nombre" required placeholder="Nombre Completo *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-2 focus:ring-1 focus:ring-primary focus:border-primary" />
+                    <input type="tel" name="auth3Telefono" required placeholder="Teléfono *" class="w-full text-xs bg-white border border-gray-300 rounded-lg p-2 mb-3 focus:ring-1 focus:ring-primary focus:border-primary" />
                   </div>
                   
                   <label for="auth3_photo" id="auth3_dropzone" class="border border-dashed border-gray-300 rounded-lg p-2 hover:bg-gray-100/50 cursor-pointer relative h-24 flex items-center justify-center text-center overflow-hidden">
@@ -863,8 +863,8 @@
         
         // 3 Authorized guardians name, phone, and photos are required
         for (let i = 1; i <= 3; i++) {
-          const authName = document.getElementsByName(`auth${i}_name`)[0];
-          const authPhone = document.getElementsByName(`auth${i}_phone`)[0];
+          const authName = document.getElementsByName(`auth${i}Nombre`)[0];
+          const authPhone = document.getElementsByName(`auth${i}Telefono`)[0];
           const authPhoto = document.getElementById(`auth${i}_photo`);
           
           if (!authName.value.trim()) return showValidationError(`Ingresa el nombre completo de la Persona Autorizada ${i}.`);
@@ -1013,6 +1013,27 @@
       }
 
       const formData = new FormData(form);
+
+      // Populate backend-expected validation properties as duplicates
+      formData.append('sede_id', formData.get('sede') || '');
+      formData.append('child_gender', formData.get('sexo') || '');
+      formData.append('child_age', formData.get('edad') || '');
+      formData.append('child_birth_date', formData.get('fechaNacimiento') || '');
+      formData.append('tutor_name', formData.get('nombreTutor') || '');
+      formData.append('tutor_phone', formData.get('telefonoContacto') || '');
+      formData.append('tutor_email', formData.get('correoElectronico') || '');
+      formData.append('emergency_contact_name', formData.get('contactoEmergencia') || '');
+      formData.append('emergency_contact_phone', formData.get('telefonoEmergencia') || '');
+      formData.append('allergies', formData.get('alergiasMedicas') || 'Ninguna');
+      formData.append('medical_observations', formData.get('padecimientos') || 'Ninguna');
+      formData.append('blood_type', formData.get('tipoSangre') || '');
+      
+      formData.append('auth1_name', formData.get('auth1Nombre') || '');
+      formData.append('auth1_phone', formData.get('auth1Telefono') || '');
+      formData.append('auth2_name', formData.get('auth2Nombre') || '');
+      formData.append('auth2_phone', formData.get('auth2Telefono') || '');
+      formData.append('auth3_name', formData.get('auth3Nombre') || '');
+      formData.append('auth3_phone', formData.get('auth3Telefono') || '');
       
       // Show loading modal using SweetAlert2
       Swal.fire({
