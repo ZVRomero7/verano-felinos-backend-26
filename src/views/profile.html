@@ -83,33 +83,41 @@
     /* Avatar Container */
     .avatar-wrapper {
       position: relative;
-      margin-top: -90px;
+      margin-top: -82px; /* Superimpose perfectly between header and white card */
       margin-bottom: 16px;
       z-index: 3;
     }
 
     .avatar {
-      width: 124px;
-      height: 124px;
+      width: 120px;
+      height: 120px;
+      aspect-ratio: 1 / 1;
       border-radius: 50%;
-      object-cover: cover;
-      border: 6px solid var(--card-bg);
+      border: 4px solid white;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
       background-color: var(--border-color);
       object-fit: cover;
+      color: transparent; /* Hides broken image alt text */
     }
 
     .avatar-placeholder {
-      width: 124px;
-      height: 124px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
-      border: 6px solid var(--card-bg);
+      border: 4px solid white;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
       background-color: var(--border-color);
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--text-muted);
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      width: 100%;
     }
 
     /* Header Profile Info */
@@ -376,8 +384,8 @@
     }
 
     .skeleton-avatar {
-      width: 124px;
-      height: 124px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
       margin: 0 auto;
     }
@@ -467,13 +475,25 @@
         <div class="tab-content active" id="tabContent_general">
           <div class="info-group">
             
-            <div class="info-card">
-              <div class="info-card-icon">
-                <span class="material-symbols-outlined">pin</span>
+            <div class="grid-2col">
+              <div class="info-card">
+                <div class="info-card-icon">
+                  <span class="material-symbols-outlined">cake</span>
+                </div>
+                <div class="info-card-details">
+                  <div class="info-label">Edad / F. Nac.</div>
+                  <div class="info-value" id="field_edad_nac">-</div>
+                </div>
               </div>
-              <div class="info-card-details">
-                <div class="info-label">Folio de Registro</div>
-                <div class="info-value" id="field_folio">-</div>
+
+              <div class="info-card">
+                <div class="info-card-icon">
+                  <span class="material-symbols-outlined">pin</span>
+                </div>
+                <div class="info-card-details">
+                  <div class="info-label">Folio</div>
+                  <div class="info-value" id="field_folio">-</div>
+                </div>
               </div>
             </div>
 
@@ -484,16 +504,6 @@
               <div class="info-card-details">
                 <div class="info-label">Sede de Inscripción</div>
                 <div class="info-value" id="field_sede">-</div>
-              </div>
-            </div>
-
-            <div class="info-card">
-              <div class="info-card-icon">
-                <span class="material-symbols-outlined">cake</span>
-              </div>
-              <div class="info-card-details">
-                <div class="info-label">Edad / Fecha Nac.</div>
-                <div class="info-value" id="field_edad_nac">-</div>
               </div>
             </div>
 
@@ -509,14 +519,20 @@
               </div>
             </div>
 
-            <div class="info-card">
-              <div class="info-card-icon">
-                <span class="material-symbols-outlined">supervisor_account</span>
+            <div class="auth-card">
+              <div class="auth-left">
+                <div class="auth-avatar-placeholder">
+                  <span class="material-symbols-outlined">supervisor_account</span>
+                </div>
+                <div class="auth-info">
+                  <div class="info-label">Tutor Responsable</div>
+                  <div class="auth-name" id="field_tutor_name">-</div>
+                  <div class="auth-phone" id="field_tutor_phone">-</div>
+                </div>
               </div>
-              <div class="info-card-details">
-                <div class="info-label">Tutor Responsable</div>
-                <div class="info-value" id="field_tutor">-</div>
-              </div>
+              <a href="" id="btn_tutor_call" class="call-btn">
+                <span class="material-symbols-outlined">call</span>
+              </a>
             </div>
 
           </div>
@@ -619,6 +635,16 @@
       }
     }
 
+    function parseDriveImageUrl(url) {
+      if (!url) return '';
+      // Support drive.google.com viewing URLs
+      const fileIdMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (fileIdMatch && fileIdMatch[1]) {
+        return `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
+      }
+      return url;
+    }
+
     function renderProfile(data) {
       // 1. Photo and name
       const fullName = `${data.nombre} ${data.paterno} ${data.materno}`.trim();
@@ -627,7 +653,7 @@
       const img = document.getElementById('profileImage');
       const placeholder = document.getElementById('avatarPlaceholder');
       if (data.fotoUrl) {
-        img.src = data.fotoUrl;
+        img.src = parseDriveImageUrl(data.fotoUrl);
         img.classList.remove('hidden');
         placeholder.classList.add('hidden');
       } else {
@@ -637,11 +663,19 @@
 
       // 2. Tab: General
       document.getElementById('field_folio').textContent = data.folio;
-      
       document.getElementById('field_sede').textContent = data.sede || '';
-
       document.getElementById('field_edad_nac').textContent = `${data.edad} años (${formatBirthDate(data.fechaNacimiento)})`;
-      document.getElementById('field_tutor').textContent = `${data.tutor} (${data.telefonoTutor})`;
+      
+      document.getElementById('field_tutor_name').textContent = data.tutor || '-';
+      const tutorPhone = data.telefonoTutor || '';
+      document.getElementById('field_tutor_phone').textContent = tutorPhone || 'Sin teléfono';
+      const tutorCall = document.getElementById('btn_tutor_call');
+      if (tutorPhone) {
+        tutorCall.href = `tel:${tutorPhone}`;
+        tutorCall.style.display = 'flex';
+      } else {
+        tutorCall.style.display = 'none';
+      }
 
       // Status styling
       const estatus = data.estatus || 'Pendiente';
@@ -701,7 +735,7 @@
           
           let photoHTML = `<div class="auth-avatar-placeholder"><span class="material-symbols-outlined">person</span></div>`;
           if (authPhoto) {
-            photoHTML = `<img src="${authPhoto}" alt="Foto ${authName}" class="auth-avatar" onerror="handleImageError(this)"/>`;
+            photoHTML = `<img src="${parseDriveImageUrl(authPhoto)}" alt="Foto ${authName}" class="auth-avatar" onerror="handleImageError(this)"/>`;
           }
 
           card.innerHTML = `
