@@ -129,42 +129,51 @@ export const handleEnrollment = async (req, res) => {
       fileUrls = await uploadEnrollmentFiles(folioId, sedeId, nombreInscrito, files);
     }
 
-    // Prepare Sheets row data
-    const enrollmentData = {
-      folioId,
-      timestamp,
-      sedeId,
-      childName,
-      childLastName,
-      childSecondLastName,
-      childGender,
-      childAge,
-      childBirthDate,
-      tutorName,
-      tutorPhone,
-      tutorEmail,
-      emergencyContactName,
-      emergencyContactPhone,
-      bloodType,
-      allergies: Array.isArray(allergies) ? allergies.join(', ') : allergies,
-      medicalObservations,
-      docCurpUrl: fileUrls.doc_curp || '',
-      docIneUrl: fileUrls.doc_ine || '',
-      childPhotoUrl: fileUrls.child_photo || '',
-      auth1Name,
-      auth1Phone,
-      auth1PhotoUrl: fileUrls.auth1_photo || '',
-      auth2Name,
-      auth2Phone,
-      auth2PhotoUrl: fileUrls.auth2_photo || '',
-      auth3Name,
-      auth3Phone,
-      auth3PhotoUrl: fileUrls.auth3_photo || '',
-      status: 'Pendiente'
-    };
+    const folio = folioId;
+    const nombresExtraidos = childName;
+    const paternoExtraido = childLastName;
+    const maternoExtraido = childSecondLastName;
+    const urls = fileUrls;
+
+    const rowData = [
+      req.body.sede || req.body.sede_id || "",                      // [0] Sede ID
+      folio,                                    // [1] Folio ID
+      new Date().toISOString(),                 // [2] Fecha Registro
+      nombresExtraidos || "",                   // [3] Nombre(s) del Menor
+      paternoExtraido || "",                    // [4] Apellido Paterno
+      maternoExtraido || "",                    // [5] Apellido Materno
+      req.body.sexo || req.body.child_gender || "",                      // [6] Sexo
+      req.body.edad || req.body.child_age || "",                      // [7] Edad
+      req.body.fechaNacimiento || req.body.child_birth_date || "",           // [8] Fecha Nacimiento
+      req.body.nombreTutor || req.body.tutor_name || "",               // [9] Nombre del Tutor
+      req.body.telefonoContacto || req.body.tutor_phone || "",          // [10] Teléfono del Tutor
+      req.body.correoElectronico || req.body.tutor_email || "",         // [11] Correo Electrónico
+      req.body.contactoEmergencia || req.body.emergency_contact_name || "",        // [12] Contacto Emergencia
+      req.body.telefonoEmergencia || req.body.emergency_contact_phone || "",        // [13] Teléfono Emergencia
+      req.body.alergiasMedicas || (Array.isArray(allergies) ? allergies.join(', ') : allergies) || "",           // [14] Alergias / Datos Médicos
+      req.body.padecimientos || req.body.medical_observations || "",             // [15] Padecimientos Crónicos
+      req.body.tipoSangre || req.body.blood_type || "",                // [16] Tipo Sangre
+      req.body.auth1Nombre || req.body.auth1_name || "",               // [17] Auth 1 Nombre
+      req.body.auth1Telefono || req.body.auth1_phone || "",             // [18] Auth 1 Teléfono
+      urls.auth1_photo || "",                   // [19] Auth 1 Foto URL
+      req.body.auth2Nombre || req.body.auth2_name || "",               // [20] Auth 2 Nombre
+      req.body.auth2Telefono || req.body.auth2_phone || "",             // [21] Auth 2 Teléfono
+      urls.auth2_photo || "",                   // [22] Auth 2 Foto URL
+      req.body.auth3Nombre || req.body.auth3_name || "",               // [23] Auth 3 Nombre
+      req.body.auth3Telefono || req.body.auth3_phone || "",             // [24] Auth 3 Teléfono
+      urls.auth3_photo || "",                   // [25] Auth 3 Foto URL
+      urls.child_photo || "",                   // [26] Inscrito Foto URL
+      urls.doc_curp || "",                      // [27] Documento CURP URL
+      urls.doc_ine || "",                       // [28] Documento INE URL
+      "",                                       // [29] Perfil Virtual URL
+      "",                                       // [30] Portal Edición Web
+      "Pendiente",                              // [31] Estatus Registro (Columna AF)
+      "",                                       // [32] Log Generación PDF
+      ""                                        // [33] Enlace Credencial PDF
+    ];
 
     // Call Google Sheets Service to append row
-    await appendEnrollmentRow(enrollmentData);
+    await appendEnrollmentRow(rowData);
 
     return res.status(201).json({
       success: true,
