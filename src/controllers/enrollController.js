@@ -5,11 +5,11 @@ import path from 'path';
 
 /**
  * Generates a unique folio ID for the participant.
- * Format: VF-26-[RANDOM_5_DIGITS]
+ * Format: ${sede}-26-[RANDOM_5_DIGITS]
  */
-const generateFolio = () => {
+const generateFolio = (sede) => {
   const randomNum = Math.floor(10000 + Math.random() * 90000);
-  return `VF-26-${randomNum}`;
+  return `${sede}-26-${randomNum}`;
 };
 
 /**
@@ -21,12 +21,18 @@ export const handleEnrollment = async (req, res) => {
     const { body, files } = req;
     
     // Extract participant and tutor details
-    const childName = body.child_name?.trim();
+    const nombreInscrito = body.nombreInscrito?.trim();
     const childAge = parseInt(body.child_age, 10);
-    const sedeId = body.sede_id?.trim();
+    const sedeId = (body.sede || body.sede_id)?.trim();
+    const childBirthDate = body.child_birth_date?.trim();
+    const childGender = body.child_gender?.trim();
+    
     const tutorName = body.tutor_name?.trim();
     const tutorPhone = body.tutor_phone?.trim();
     const tutorEmail = body.tutor_email?.trim();
+    
+    const emergencyContactName = body.emergency_contact_name?.trim();
+    const emergencyContactPhone = body.emergency_contact_phone?.trim();
     
     // Extract medical info
     const bloodType = body.blood_type?.trim();
@@ -44,18 +50,43 @@ export const handleEnrollment = async (req, res) => {
     const auth3Phone = body.auth3_phone?.trim();
 
     // Basic fields validation
-    if (!childName || isNaN(childAge) || !sedeId || !tutorName || !tutorPhone || !tutorEmail || !bloodType) {
+    if (!nombreInscrito || isNaN(childAge) || !sedeId || !childBirthDate || !childGender || !tutorName || !tutorPhone || !tutorEmail || !emergencyContactName || !emergencyContactPhone || !bloodType) {
       return res.status(400).json({
         success: false,
         message: 'Faltan campos obligatorios en el formulario.'
       });
     }
 
+    // Name splitting algorithm
+    const cleanedName = nombreInscrito.replace(/\s+/g, ' ');
+    const nameWords = cleanedName.split(' ');
+    let childName = '';
+    let childLastName = '';
+    let childSecondLastName = '';
+
+    if (nameWords.length >= 4) {
+      childSecondLastName = nameWords.pop();
+      childLastName = nameWords.pop();
+      childName = nameWords.join(' ');
+    } else if (nameWords.length === 3) {
+      childName = nameWords[0];
+      childLastName = nameWords[1];
+      childSecondLastName = nameWords[2];
+    } else if (nameWords.length === 2) {
+      childName = nameWords[0];
+      childLastName = nameWords[1];
+      childSecondLastName = '';
+    } else {
+      childName = nameWords[0] || '';
+      childLastName = '';
+      childSecondLastName = '';
+    }
+
     // Generate folio and timestamp
-    const folioId = generateFolio();
+    const folioId = generateFolio(sedeId);
     const timestamp = new Date().toISOString();
 
-    console.log(`[Enrollment Controller]: Processing enrollment for ${childName}. Assigned Folio: ${folioId}`);
+    console.log(`[Enrollment Controller]: Processing enrollment for ${nombreInscrito}. Assigned Folio: ${folioId}`);
 
     // Compress image uploads on-the-fly using sharp
     if (files) {
@@ -95,7 +126,7 @@ export const handleEnrollment = async (req, res) => {
     // Call Google Drive Service to create folder and upload files
     let fileUrls = {};
     if (files) {
-      fileUrls = await uploadEnrollmentFiles(folioId, sedeId, childName, files);
+      fileUrls = await uploadEnrollmentFiles(folioId, sedeId, nombreInscrito, files);
     }
 
     // Prepare Sheets row data
@@ -104,10 +135,16 @@ export const handleEnrollment = async (req, res) => {
       timestamp,
       sedeId,
       childName,
+      childLastName,
+      childSecondLastName,
+      childGender,
       childAge,
+      childBirthDate,
       tutorName,
       tutorPhone,
       tutorEmail,
+      emergencyContactName,
+      emergencyContactPhone,
       bloodType,
       allergies: Array.isArray(allergies) ? allergies.join(', ') : allergies,
       medicalObservations,
@@ -134,7 +171,7 @@ export const handleEnrollment = async (req, res) => {
       message: 'Inscripción procesada y registrada exitosamente.',
       data: {
         folioId,
-        childName,
+        childName: nombreInscrito,
         status: 'Pendiente',
         filesUploadedCount: Object.keys(fileUrls).length
       }

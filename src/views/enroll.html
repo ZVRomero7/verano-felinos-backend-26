@@ -234,25 +234,9 @@
 
             <!-- Child Name -->
             <div class="relative floating-label-input">
-              <input type="text" name="child_name" id="child_name" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
-              <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="child_name">
-                Nombre(s) del Menor *
-              </label>
-            </div>
-
-            <!-- Child Last Name -->
-            <div class="relative floating-label-input">
-              <input type="text" name="child_last_name" id="child_last_name" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
-              <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="child_last_name">
-                Apellido Paterno *
-              </label>
-            </div>
-
-            <!-- Child Second Last Name -->
-            <div class="relative floating-label-input">
-              <input type="text" name="child_second_last_name" id="child_second_last_name" placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
-              <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="child_second_last_name">
-                Apellido Materno
+              <input type="text" name="nombreInscrito" id="nombreInscrito" required placeholder=" " class="peer w-full h-14 bg-gray-50 border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-4 pt-4 rounded-t-lg transition-all font-medium" />
+              <label class="absolute left-4 top-4 text-on-surface-variant text-sm transition-all pointer-events-none origin-left" for="nombreInscrito">
+                Nombre Completo del Menor *
               </label>
             </div>
 
@@ -624,7 +608,7 @@
               <span class="material-symbols-outlined text-red-600" style="font-variation-settings: 'FILL' 1;">warning</span>
               <div>
                 <h4 class="text-xs font-bold text-red-700">Advertencia de Re-edición</h4>
-                <p class="text-xs text-on-surface-variant mt-1">Una vez confirmada la inscripción, la modificación posterior de datos biográficos o de contacto incurrirá en un costo administrativo en pesos mexicanos. Por favor, verifique que toda la información sea correcta antes de proceder.</p>
+                <p class="text-xs text-on-surface-variant mt-1">Una vez confirmada la inscripción, la modificación posterior de datos biográficos o de contacto <strong>incurrirá en un costo administrativo en pesos mexicanos</strong>. Por favor, verifique que toda la información sea correcta antes de proceder.</p>
               </div>
             </div>
 
@@ -823,14 +807,20 @@
     function validateStepFields(step) {
       if (step === 1) {
         const Sede = document.getElementById('sede_id').value;
-        const childName = document.getElementById('child_name').value.trim();
+        const nombreInscrito = document.getElementById('nombreInscrito').value.trim();
         const childAgeVal = parseInt(document.getElementById('child_age').value, 10);
+        const childBirthDate = document.getElementById('child_birth_date').value;
+        const childGender = document.getElementById('child_gender').value;
         const tutorName = document.getElementById('tutor_name').value.trim();
         const tutorPhone = document.getElementById('tutor_phone').value.trim();
         const tutorEmail = document.getElementById('tutor_email').value.trim();
+        const emergencyName = document.getElementById('emergency_contact_name').value.trim();
+        const emergencyPhone = document.getElementById('emergency_contact_phone').value.trim();
 
         if (!Sede) return showValidationError('Debes seleccionar una sede de inscripción.');
-        if (!childName) return showValidationError('Ingresa el nombre completo del menor.');
+        if (!nombreInscrito) return showValidationError('Ingresa el nombre completo del menor.');
+        if (!childBirthDate) return showValidationError('Ingresa la fecha de nacimiento del menor.');
+        if (!childGender) return showValidationError('Selecciona el sexo del menor.');
         
         if (isNaN(childAgeVal)) {
           return showValidationError('Ingresa la edad del menor.');
@@ -852,6 +842,8 @@
         if (!tutorEmail || !tutorEmail.includes('@')) {
           return showValidationError('Ingresa un correo electrónico de contacto válido.');
         }
+        if (!emergencyName) return showValidationError('Ingresa el nombre del contacto de emergencia.');
+        if (!emergencyPhone) return showValidationError('Ingresa el teléfono de emergencia.');
       }
       
       if (step === 2) {

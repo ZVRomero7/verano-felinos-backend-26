@@ -45,17 +45,17 @@ export const appendEnrollmentRow = async (rowData) => {
       rowData.folioId || '',                    // [1] Folio
       rowData.timestamp || '',                  // [2] Fecha (ISO String)
       rowData.childName || '',                  // [3] Nombre Completo del Menor
-      '',                                       // [4] Paterno
-      '',                                       // [5] Materno
-      '',                                       // [6] Sexo
+      rowData.childLastName || '',              // [4] Paterno
+      rowData.childSecondLastName || '',        // [5] Materno
+      rowData.childGender || '',                // [6] Sexo
       rowData.childAge ?? '',                   // [7] Edad
-      '',                                       // [8] Fecha Nacimiento
+      rowData.childBirthDate || '',             // [8] Fecha Nacimiento
       rowData.tutorName || '',                  // [9] Nombre del Tutor
       rowData.tutorPhone || '',                 // [10] Teléfono del Tutor
       rowData.tutorEmail || '',                 // [11] Correo Electrónico del Tutor (Columna L)
       '',                                       // [12] Madre Tel
-      '',                                       // [13] Contacto Emergencia
-      '',                                       // [14] Tel Emergencia
+      rowData.emergencyContactName || '',       // [13] Contacto Emergencia
+      rowData.emergencyContactPhone || '',      // [14] Tel Emergencia
       rowData.allergies || 'Ninguna',           // [15] Alergias Generales
       '',                                       // [16] Med
       '',                                       // [17] Lesiones
@@ -123,16 +123,35 @@ export const getRowByFolio = async (folioId) => {
   if (!clientData || !spreadsheetId) {
     console.log(`\n📊  [Google Sheets Mock Mode]: Fetching row simulation for folio: ${folioId}`);
     return {
+      sedeId: 'UDU',
       folioId,
+      timestamp: new Date().toISOString(),
       childName: 'Mock Participant',
+      childLastName: 'Pérez',
+      childSecondLastName: 'Gómez',
+      childGender: 'Masculino',
       childAge: 10,
-      sedeId: 'SEDE-NORTE',
+      childBirthDate: '2016-06-22',
       tutorName: 'Mock Tutor',
       tutorPhone: '1234567890',
       tutorEmail: 'tutor@mock.com',
-      bloodType: 'O+',
+      emergencyContactName: 'Emergency Contact',
+      emergencyContactPhone: '9876543210',
       allergies: 'Ninguna',
       medicalObservations: 'Ninguna',
+      bloodType: 'O+',
+      auth1Name: 'Auth 1',
+      auth1Phone: '1234567891',
+      auth1PhotoUrl: '',
+      auth2Name: 'Auth 2',
+      auth2Phone: '1234567892',
+      auth2PhotoUrl: '',
+      auth3Name: 'Auth 3',
+      auth3Phone: '1234567893',
+      auth3PhotoUrl: '',
+      childPhotoUrl: '',
+      docCurpUrl: '',
+      docIneUrl: '',
       status: 'Pendiente'
     };
   }
@@ -162,10 +181,16 @@ export const getRowByFolio = async (folioId) => {
       folioId: row[1] || '',
       timestamp: row[2] || '',
       childName: row[3] || '',
+      childLastName: row[4] || '',
+      childSecondLastName: row[5] || '',
+      childGender: row[6] || '',
       childAge: row[7] || '',
+      childBirthDate: row[8] || '',
       tutorName: row[9] || '',
       tutorPhone: row[10] || '',
       tutorEmail: row[11] || '',
+      emergencyContactName: row[13] || '',
+      emergencyContactPhone: row[14] || '',
       allergies: row[15] || '',
       medicalObservations: row[19] || '',
       bloodType: row[20] || '',
