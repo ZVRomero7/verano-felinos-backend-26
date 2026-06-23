@@ -32,57 +32,17 @@ const getSheetsClient = () => {
 /**
  * Appends a new enrollment record row to the Google Sheet.
  * 
- * @param {Object} rowData - Form values and Drive file URLs
+ * @param {Array} rowDataArray - Form values and Drive file URLs
  */
-export const appendEnrollmentRow = async (rowData) => {
+export const appendEnrollmentRow = async (rowDataArray) => {
   const clientData = getSheetsClient();
   const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-
-  // Values in order of columns in Google Sheets (Strict 34 columns mapping)
-  const values = [
-    [
-      rowData.sedeId || '',                     // [0] Sede
-      rowData.folioId || '',                    // [1] Folio
-      rowData.timestamp || '',                  // [2] Fecha (ISO String)
-      rowData.childName || '',                  // [3] Nombre Completo del Menor
-      rowData.childLastName || '',              // [4] Paterno
-      rowData.childSecondLastName || '',        // [5] Materno
-      rowData.childGender || '',                // [6] Sexo
-      rowData.childAge ?? '',                   // [7] Edad
-      rowData.childBirthDate || '',             // [8] Fecha Nacimiento
-      rowData.tutorName || '',                  // [9] Nombre del Tutor
-      rowData.tutorPhone || '',                 // [10] Teléfono del Tutor
-      rowData.tutorEmail || '',                 // [11] Correo Electrónico del Tutor (Columna L)
-      rowData.emergencyContactName || '',       // [12] Contacto Emergencia
-      rowData.emergencyContactPhone || '',      // [13] Tel Emergencia
-      rowData.allergies || 'Ninguna',           // [14] Alergias Generales
-      rowData.medicalObservations || 'Ninguna', // [15] Padecimientos Crónicos/Observaciones
-      rowData.bloodType || '',                  // [16] Tipo de Sangre
-      rowData.auth1Name || '',                  // [17] Auth 1: Nombre
-      rowData.auth1Phone || '',                 // [18] Auth 1: Tel
-      rowData.auth1PhotoUrl || '',              // [19] Auth 1: FotoURL
-      rowData.auth2Name || '',                  // [20] Auth 2: Nombre
-      rowData.auth2Phone || '',                 // [21] Auth 2: Tel
-      rowData.auth2PhotoUrl || '',              // [22] Auth 2: FotoURL
-      rowData.auth3Name || '',                  // [23] Auth 3: Nombre
-      rowData.auth3Phone || '',                 // [24] Auth 3: Tel
-      rowData.auth3PhotoUrl || '',              // [25] Auth 3: FotoURL
-      rowData.childPhotoUrl || '',              // [26] Foto Menor URL
-      rowData.docCurpUrl || '',                 // [27] CURP URL
-      rowData.docIneUrl || '',                  // [28] INE URL
-      '',                                       // [29] Perfil Virtual Placeholder
-      '',                                       // [30] Portal Edición Placeholder
-      rowData.status || 'Pendiente',            // [31] Estatus Registro
-      '',                                       // [32] Log Placeholder
-      ''                                        // [33] Enlace PDF Placeholder
-    ]
-  ];
 
   // Run in Mock mode if Sheets client or Sheet ID is not set
   if (!clientData || !spreadsheetId) {
     console.log(`\n📊  [Google Sheets Mock Mode]: Row appending simulation`);
     console.log(`Spreadsheet ID: ${spreadsheetId || 'NOT_CONFIGURED'}`);
-    console.log(`Row Data:`, values[0]);
+    console.log(`Row Data:`, rowDataArray);
     console.log(`📊  [Google Sheets Mock Mode]: Completed row append simulation.\n`);
     return { success: true, mockAppended: true };
   }
@@ -92,11 +52,11 @@ export const appendEnrollmentRow = async (rowData) => {
   try {
     const response = await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: 'A:AH', // Append to sheet starting from column A up to AH (34 columns)
+      range: 'BD_Inscripciones!A:AH', // Append to sheet starting from column A up to AH (34 columns)
       valueInputOption: 'USER_ENTERED',
       insertDataOption: 'INSERT_ROWS',
       requestBody: {
-        values
+        values: [rowDataArray] // ENVÍA EL ARRAY DIRECTO
       },
       auth
     });
