@@ -768,6 +768,11 @@
           timer: 3000
         });
 
+        // Reload page after 1.5 seconds to pull new data
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+
         // Reset button state after 3 seconds
         setTimeout(() => {
           submitBtn.disabled = false;
