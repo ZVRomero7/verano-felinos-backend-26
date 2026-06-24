@@ -557,9 +557,6 @@
         <button class="btn-primary" type="submit">
           <span class="material-symbols-outlined">save</span> Guardar Cambios
         </button>
-        <button class="btn-outline" id="btnRegeneratePdf" type="button">
-          <span class="material-symbols-outlined">refresh</span> Regenerar Gafete PDF
-        </button>
         <button class="btn-secondary" id="btnBackToProfile" type="button">
           <span class="material-symbols-outlined">arrow_back</span> Volver al Perfil
         </button>
@@ -792,77 +789,6 @@
       }
     });
 
-    // 5. Handle "Regenerar Gafete PDF" Button Click
-    document.getElementById('btnRegeneratePdf').addEventListener('click', async function() {
-      const btn = this;
-      const originalHtml = btn.innerHTML;
-      
-      console.log('Regenerating PDF badge for folio:', folio);
-
-      try {
-        btn.disabled = true;
-        btn.textContent = 'Generando...';
-
-        const response = await fetch('/api/generate-pdf/' + folio, {
-          method: 'POST'
-        });
-
-        if (!response.ok) {
-          throw new Error('Error al regenerar el PDF.');
-        }
-
-        const result = await response.json();
-        console.log('PDF Regeneration result:', result);
-
-        // Success state
-        btn.textContent = '¡Gafete Actualizado!';
-        btn.style.backgroundColor = 'var(--accent-green)';
-        btn.style.color = '#FFFFFF';
-        btn.style.borderColor = 'var(--accent-green)';
-
-        Swal.fire({
-          icon: 'success',
-          title: '¡PDF Regenerado!',
-          text: 'La credencial se ha regenerado y guardado en la nube con los nuevos datos.',
-          confirmButtonColor: '#1D5FA5',
-          timer: 3000
-        });
-
-        // Restore button state after 3 seconds
-        setTimeout(() => {
-          btn.disabled = false;
-          btn.style.backgroundColor = '';
-          btn.style.color = '';
-          btn.style.borderColor = '';
-          btn.innerHTML = originalHtml;
-        }, 3000);
-
-      } catch (err) {
-        console.error('[PDF Gen Error]:', err);
-        
-        // Error state
-        btn.textContent = 'Error al generar';
-        btn.style.backgroundColor = 'var(--accent-red)';
-        btn.style.color = '#FFFFFF';
-        btn.style.borderColor = 'var(--accent-red)';
-
-        Swal.fire({
-          icon: 'error',
-          title: 'Error de Generación',
-          text: err.message || 'No se pudo generar la credencial.',
-          confirmButtonColor: '#1D5FA5'
-        });
-
-        // Restore button state after 3 seconds
-        setTimeout(() => {
-          btn.disabled = false;
-          btn.style.backgroundColor = '';
-          btn.style.color = '';
-          btn.style.borderColor = '';
-          btn.innerHTML = originalHtml;
-        }, 3000);
-      }
-    });
 
     // Load data on start
     window.addEventListener('DOMContentLoaded', loadParticipantData);
