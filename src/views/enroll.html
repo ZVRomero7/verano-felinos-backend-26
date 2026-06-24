@@ -683,6 +683,13 @@
     </form>
   </main>
 
+  <!-- Privacy Policy Footer -->
+  <footer class="w-full text-center py-6 mt-auto">
+    <button type="button" id="btnPrivacyDisclaimer" class="text-xs text-on-surface-variant/60 hover:text-primary transition-all underline decoration-dotted underline-offset-4 font-medium">
+      Aviso de Privacidad y Manejo de Datos
+    </button>
+  </footer>
+
   <!-- Mobile Bottom Menu bar removed -->
 
   <!-- Decorative Background Elements -->
@@ -1131,6 +1138,22 @@
           confirmButtonText: 'Aceptar',
           confirmButtonColor: '#004784'
         });
+      });
+    });
+
+    // Privacy disclaimer dialog
+    document.getElementById('btnPrivacyDisclaimer')?.addEventListener('click', () => {
+      Swal.fire({
+        title: 'Aviso de Privacidad',
+        html: `
+          <div class="text-left text-xs text-on-surface-variant leading-relaxed space-y-3">
+            <p><strong>Uso y Resguardo de Datos Personales:</strong></p>
+            <p>La información, fotografías y documentos compartidos en este registro oficial se recopilan y almacenan estrictamente para la organización, acreditación y seguridad médica del participante en <strong>Verano Felinos 2026</strong>.</p>
+            <p>Nos comprometemos a mantener un estricto control de confidencialidad, evitando cualquier divulgación o transferencia de tus datos a terceros sin autorización previa.</p>
+          </div>
+        `,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#004784'
       });
     });
   </script>
