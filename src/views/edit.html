@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Portal de Edición - Verano Felinos 2026</title>
+  
+  <!-- CSS & Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <!-- SweetAlert2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <style>
+    :root {
+      --primary: #1D5FA5;
+      --primary-dark: #004784;
+      --accent-green: #10B981;
+      --accent-red: #EF4444;
+      --bg-gray: #F8F9FA;
+      --card-bg: #FFFFFF;
+      --text-dark: #212529;
+      --text-muted: #6D7680;
+      --border-color: #E2E8F0;
+      --soft-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02);
+      --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-gray);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 60px;
+    }
+
+    /* Top Background Accent */
+    .bg-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 260px;
+      background-color: var(--primary);
+      background-image: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      z-index: 1;
+    }
+
+    /* Main Container */
+    .container {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 640px;
+      margin-top: 60px;
+      padding: 0 16px;
+    }
+
+    /* Header title card */
+    .header-card {
+      text-align: center;
+      color: white;
+      margin-bottom: 24px;
+    }
+
+    .header-card h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .header-card p {
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+
+    /* Form Container Card */
+    .form-card {
+      background: var(--card-bg);
+      border-radius: 24px;
+      box-shadow: var(--soft-shadow);
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 2px solid var(--bg-gray);
+      padding-bottom: 8px;
+    }
+
+    .section-title span {
+      font-size: 20px;
+      color: var(--primary);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .grid-3col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+
+    label .optional {
+      font-weight: 400;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: var(--text-dark);
+      background-color: var(--bg-gray);
+      transition: all 0.2s ease-in-out;
+      outline: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="tel"]:focus,
+    textarea:focus {
+      border-color: var(--primary);
+      background-color: #FFFFFF;
+      box-shadow: 0 0 0 4px rgba(29, 95, 165, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* Custom File Input Container */
+    .file-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 8px;
+      background: var(--bg-gray);
+      border: 1.5px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .file-input-wrapper:hover {
+      border-color: var(--primary);
+    }
+
+    .file-preview {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      object-fit: cover;
+      background-color: var(--border-color);
+      border: 1px solid var(--border-color);
+    }
+
+    .file-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .file-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .file-status {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .btn-file-select {
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary);
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+      transition: all 0.2s ease;
+    }
+
+    .btn-file-select:hover {
+      background-color: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    /* Buttons Panel */
+    .buttons-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background-image: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(29, 95, 165, 0.25);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(29, 95, 165, 0.35);
+    }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 14px;
+      background-color: #FFFFFF;
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--bg-gray);
+      color: var(--text-dark);
+    }
+
+    .btn-outline {
+      width: 100%;
+      padding: 14px;
+      background-color: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      border-radius: 14px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-outline:hover {
+      background-color: rgba(29, 95, 165, 0.05);
+      transform: translateY(-1px);
+    }
+
+    /* Badge details card */
+    .badge-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-image: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-radius: 20px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .badge-info h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+
+    .badge-info p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .badge-pill {
+      font-size: 0.8rem;
+      font-weight: 700;
+      background-color: #FFFFFF;
+      color: var(--primary-dark);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 580px) {
+      .grid-2col {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      
+      .grid-3col {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-header"></div>
+
+  <div class="container">
+    <div class="header-card">
+      <h1>Portal de Edición</h1>
+      <p>Modifica los datos de inscripción y sube archivos de corrección</p>
+    </div>
+
+    <!-- Badge Info Summary -->
+    <div class="badge-card">
+      <div class="badge-info">
+        <h2 id="summary-child-name">Cargando...</h2>
+        <p id="summary-folio">Folio: -</p>
+      </div>
+      <div class="badge-pill" id="summary-sede">-</div>
+    </div>
+
+    <form id="editForm">
+      <!-- Sección 1: Datos del Niño -->
+      <div class="form-card">
+        <h2 class="section-title">
+          <span class="material-symbols-outlined">face</span> Datos del Participante
+        </h2>
+        
+        <div class="grid-3col">
+          <div class="form-group">
+            <label for="nombre">Nombre(s)*</label>
+            <input id="nombre" name="nombre" required type="text"/>
+          </div>
+          <div class="form-group">
+            <label for="paterno">Paterno*</label>
+            <input id="paterno" name="paterno" required type="text"/>
+          </div>
+          <div class="form-group">
+            <label for="materno">Materno*</label>
+            <input id="materno" name="materno" required type="text"/>
+          </div>
+        </div>
+
+        <div class="grid-2col">
+          <div class="form-group">
+            <label for="alergias">Alergias</label>
+            <textarea id="alergias" name="alergias"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="padecimientos">Padecimientos/Observaciones</label>
+            <textarea id="padecimientos" name="padecimientos"></textarea>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Fotografía del Alumno</label>
+          <div class="file-input-wrapper">
+            <img class="file-preview" id="preview-child_photo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%23cbd5e1'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Vista previa"/>
+            <div class="file-info">
+              <span class="file-label">Foto del Alumno</span>
+              <span class="file-status" id="status-child_photo">Sin archivo seleccionado</span>
+            </div>
+            <label class="btn-file-select" for="file-child_photo">Seleccionar</label>
+            <input accept="image/*" id="file-child_photo" name="child_photo" type="file"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección 2: Contacto del Tutor -->
+      <div class="form-card">
+        <h2 class="section-title">
+          <span class="material-symbols-outlined">contact_phone</span> Datos de Contacto y Emergencia
+        </h2>
+        <div class="form-group">
+          <label for="telefonoTutor">Teléfono del Tutor*</label>
+          <input id="telefonoTutor" name="telefonoTutor" required type="tel"/>
+        </div>
+        <div class="grid-2col">
+          <div class="form-group">
+            <label for="contactoEmergencia">Nombre de Contacto de Emergencia*</label>
+            <input id="contactoEmergencia" name="contactoEmergencia" required type="text"/>
+          </div>
+          <div class="form-group">
+            <label for="telefonoEmergencia">Teléfono de Emergencia*</label>
+            <input id="telefonoEmergencia" name="telefonoEmergencia" required type="tel"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección 3: Personas Autorizadas -->
+      <div class="form-card">
+        <h2 class="section-title">
+          <span class="material-symbols-outlined">group</span> Personas Autorizadas para Recoger al Alumno
+        </h2>
+        
+        <!-- Autorizado 1 (Obligatorio) -->
+        <div style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1.5px solid var(--border-color);">
+          <h3 style="font-size: 0.9rem; font-weight: 700; color: var(--primary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Autorizado 1 (Obligatorio)</h3>
+          
+          <div class="grid-2col">
+            <div class="form-group">
+              <label for="auth1Nombre">Nombre Completo*</label>
+              <input id="auth1Nombre" name="auth1Nombre" required type="text"/>
+            </div>
+            <div class="form-group">
+              <label for="auth1Telefono">Teléfono*</label>
+              <input id="auth1Telefono" name="auth1Telefono" required type="tel"/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Fotografía de Identificación</label>
+            <div class="file-input-wrapper">
+              <img class="file-preview" id="preview-auth1_photo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%23cbd5e1'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Vista previa"/>
+              <div class="file-info">
+                <span class="file-label">Foto de Identificación 1</span>
+                <span class="file-status" id="status-auth1_photo">Sin archivo seleccionado</span>
+              </div>
+              <label class="btn-file-select" for="file-auth1_photo">Seleccionar</label>
+              <input accept="image/*" id="file-auth1_photo" name="auth1_photo" type="file"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Autorizado 2 (Opcional) -->
+        <div style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1.5px solid var(--border-color);">
+          <h3 style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Autorizado 2 <span class="optional">(Opcional)</span></h3>
+          
+          <div class="grid-2col">
+            <div class="form-group">
+              <label for="auth2Nombre">Nombre Completo <span class="optional">(Opcional)</span></label>
+              <input id="auth2Nombre" name="auth2Nombre" type="text"/>
+            </div>
+            <div class="form-group">
+              <label for="auth2Telefono">Teléfono <span class="optional">(Opcional)</span></label>
+              <input id="auth2Telefono" name="auth2Telefono" type="tel"/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Fotografía de Identificación <span class="optional">(Opcional)</span></label>
+            <div class="file-input-wrapper">
+              <img class="file-preview" id="preview-auth2_photo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%23cbd5e1'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Vista previa"/>
+              <div class="file-info">
+                <span class="file-label">Foto de Identificación 2</span>
+                <span class="file-status" id="status-auth2_photo">Sin archivo seleccionado</span>
+              </div>
+              <label class="btn-file-select" for="file-auth2_photo">Seleccionar</label>
+              <input accept="image/*" id="file-auth2_photo" name="auth2_photo" type="file"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Autorizado 3 (Opcional) -->
+        <div>
+          <h3 style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Autorizado 3 <span class="optional">(Opcional)</span></h3>
+          
+          <div class="grid-2col">
+            <div class="form-group">
+              <label for="auth3Nombre">Nombre Completo <span class="optional">(Opcional)</span></label>
+              <input id="auth3Nombre" name="auth3Nombre" type="text"/>
+            </div>
+            <div class="form-group">
+              <label for="auth3Telefono">Teléfono <span class="optional">(Opcional)</span></label>
+              <input id="auth3Telefono" name="auth3Telefono" type="tel"/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Fotografía de Identificación <span class="optional">(Opcional)</span></label>
+            <div class="file-input-wrapper">
+              <img class="file-preview" id="preview-auth3_photo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%23cbd5e1'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Vista previa"/>
+              <div class="file-info">
+                <span class="file-label">Foto de Identificación 3</span>
+                <span class="file-status" id="status-auth3_photo">Sin archivo seleccionado</span>
+              </div>
+              <label class="btn-file-select" for="file-auth3_photo">Seleccionar</label>
+              <input accept="image/*" id="file-auth3_photo" name="auth3_photo" type="file"/>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="buttons-panel">
+        <button class="btn-primary" type="submit">
+          <span class="material-symbols-outlined">save</span> Guardar Cambios
+        </button>
+        <button class="btn-outline" id="btnRegeneratePdf" type="button">
+          <span class="material-symbols-outlined">refresh</span> Regenerar Gafete PDF
+        </button>
+        <button class="btn-secondary" id="btnBackToProfile" type="button">
+          <span class="material-symbols-outlined">arrow_back</span> Volver al Perfil
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const defaultPlaceholder = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%23cbd5e1'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
+
+    // Set up global error fallbacks for previews immediately
+    document.querySelectorAll('.file-preview').forEach(img => {
+      img.addEventListener('error', function() {
+        this.src = defaultPlaceholder;
+      });
+    });
+
+    // 1. Google Drive Link Parser Helper
+    function parseDriveImageUrl(url) {
+      if (!url || url.includes('mock-file') || url.includes('mock.com')) {
+        return defaultPlaceholder;
+      }
+      const fileIdMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (fileIdMatch && fileIdMatch[1]) {
+        return `https://lh3.googleusercontent.com/d/${fileIdMatch[1]}`;
+      }
+      return url;
+    }
+
+    // 2. Fetch and prefill data
+    const pathParts = window.location.pathname.split('/');
+    const folio = pathParts[pathParts.length - 1];
+    
+    console.log(`[Edit Portal]: Extracted folio from URL: ${folio}`);
+    
+    // Set up back button link
+    document.getElementById('btnBackToProfile').addEventListener('click', () => {
+      window.location.href = `/perfil/${folio}`;
+    });
+
+    async function loadParticipantData() {
+      if (!folio) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Folio inválido',
+          text: 'No se pudo extraer el Folio de la URL de navegación.',
+          confirmButtonColor: '#1D5FA5'
+        });
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/profile/${folio}`);
+        if (!response.ok) {
+          throw new Error('No se pudo cargar la información del alumno.');
+        }
+
+        const data = await response.json();
+        console.log('[Edit Portal]: Fetched participant details:', data);
+
+        // Pre-fill header
+        document.getElementById('summary-child-name').textContent = `${data.nombre} ${data.paterno} ${data.materno}`.trim();
+        document.getElementById('summary-folio').textContent = `Folio: ${data.folio}`;
+        document.getElementById('summary-sede').textContent = data.sede || 'Sin sede';
+
+        // Pre-fill participant inputs
+        document.getElementById('nombre').value = data.nombre || '';
+        document.getElementById('paterno').value = data.paterno || '';
+        document.getElementById('materno').value = data.materno || '';
+        document.getElementById('alergias').value = data.alergias || '';
+        document.getElementById('padecimientos').value = data.padecimientos || '';
+        
+        // Pre-fill contact inputs
+        document.getElementById('telefonoTutor').value = data.telefonoTutor || '';
+        document.getElementById('contactoEmergencia').value = data.contactoEmergencia || '';
+        document.getElementById('telefonoEmergencia').value = data.telefonoEmergencia || '';
+
+        // Pre-fill authorized persons
+        document.getElementById('auth1Nombre').value = data.auth1Nombre || '';
+        document.getElementById('auth1Telefono').value = data.auth1Telefono || '';
+        
+        document.getElementById('auth2Nombre').value = data.auth2Nombre || '';
+        document.getElementById('auth2Telefono').value = data.auth2Telefono || '';
+        
+        document.getElementById('auth3Nombre').value = data.auth3Nombre || '';
+        document.getElementById('auth3Telefono').value = data.auth3Telefono || '';
+
+        // Set existing image previews if available
+        if (data.fotoUrl) {
+          const imgUrl = parseDriveImageUrl(data.fotoUrl);
+          document.getElementById('preview-child_photo').src = imgUrl;
+          if (!imgUrl.startsWith('data:')) {
+            document.getElementById('status-child_photo').textContent = "Imagen actual cargada";
+          }
+        }
+        if (data.auth1FotoUrl) {
+          const imgUrl = parseDriveImageUrl(data.auth1FotoUrl);
+          document.getElementById('preview-auth1_photo').src = imgUrl;
+          if (!imgUrl.startsWith('data:')) {
+            document.getElementById('status-auth1_photo').textContent = "Imagen actual cargada";
+          }
+        }
+        if (data.auth2FotoUrl) {
+          const imgUrl = parseDriveImageUrl(data.auth2FotoUrl);
+          document.getElementById('preview-auth2_photo').src = imgUrl;
+          if (!imgUrl.startsWith('data:')) {
+            document.getElementById('status-auth2_photo').textContent = "Imagen actual cargada";
+          }
+        }
+        if (data.auth3FotoUrl) {
+          const imgUrl = parseDriveImageUrl(data.auth3FotoUrl);
+          document.getElementById('preview-auth3_photo').src = imgUrl;
+          if (!imgUrl.startsWith('data:')) {
+            document.getElementById('status-auth3_photo').textContent = "Imagen actual cargada";
+          }
+        }
+
+      } catch (err) {
+        console.error('[Edit Portal Error]: Failed to fetch profile:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de Carga',
+          text: 'No se pudo obtener la información de este folio. Valida que el Folio sea correcto.',
+          confirmButtonColor: '#1D5FA5'
+        });
+        document.getElementById('summary-child-name').textContent = "Folio no encontrado";
+      }
+    }
+
+    // 3. File Input Previews & Interactivity
+    const fileFields = ['child_photo', 'auth1_photo', 'auth2_photo', 'auth3_photo'];
+    fileFields.forEach(field => {
+      const fileInput = document.getElementById(`file-${field}`);
+      const previewImg = document.getElementById(`preview-${field}`);
+      const statusSpan = document.getElementById(`status-${field}`);
+
+      fileInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+          statusSpan.textContent = `Seleccionado: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`;
+          
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            previewImg.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        } else {
+          statusSpan.textContent = "Sin archivo seleccionado";
+          previewImg.src = defaultPlaceholder;
+        }
+      });
+    });
+
+    // 4. Handle "Guardar Cambios" Form Submit
+    document.getElementById('editForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const submitBtn = this.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn.innerHTML;
+
+      // Collect only text fields (ignoring files since update of images is omitted in this iteration)
+      const data = {
+        nombre: document.getElementById('nombre').value,
+        paterno: document.getElementById('paterno').value,
+        materno: document.getElementById('materno').value,
+        alergias: document.getElementById('alergias').value,
+        padecimientos: document.getElementById('padecimientos').value,
+        telefonoTutor: document.getElementById('telefonoTutor').value,
+        contactoEmergencia: document.getElementById('contactoEmergencia').value,
+        telefonoEmergencia: document.getElementById('telefonoEmergencia').value,
+        auth1Nombre: document.getElementById('auth1Nombre').value,
+        auth1Telefono: document.getElementById('auth1Telefono').value,
+        auth2Nombre: document.getElementById('auth2Nombre').value,
+        auth2Telefono: document.getElementById('auth2Telefono').value,
+        auth3Nombre: document.getElementById('auth3Nombre').value,
+        auth3Telefono: document.getElementById('auth3Telefono').value,
+      };
+
+      console.log('Sending update to backend...', data);
+
+      try {
+        submitBtn.disabled = true;
+        
+        const response = await fetch('/api/editar/' + folio, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+          throw new Error('Error al actualizar los datos en el servidor.');
+        }
+
+        const result = await response.json();
+        console.log('Update result:', result);
+
+        // UI feedback on success
+        submitBtn.textContent = '¡Actualizado!';
+        submitBtn.style.backgroundImage = 'none';
+        submitBtn.style.backgroundColor = 'var(--accent-green)';
+        
+        Swal.fire({
+          icon: 'success',
+          title: '¡Datos Actualizados!',
+          text: 'La información del inscrito se ha modificado exitosamente en la base de datos.',
+          confirmButtonColor: '#1D5FA5',
+          timer: 3000
+        });
+
+        // Reset button state after 3 seconds
+        setTimeout(() => {
+          submitBtn.disabled = false;
+          submitBtn.style.backgroundImage = '';
+          submitBtn.style.backgroundColor = '';
+          submitBtn.innerHTML = originalBtnText;
+        }, 3000);
+
+      } catch (err) {
+        console.error('[Update Error]:', err);
+        submitBtn.disabled = false;
+        
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de Actualización',
+          text: err.message || 'No se pudieron guardar los cambios.',
+          confirmButtonColor: '#1D5FA5'
+        });
+      }
+    });
+
+    // 5. Handle "Regenerar Gafete PDF" Button Click
+    document.getElementById('btnRegeneratePdf').addEventListener('click', async function() {
+      const btn = this;
+      const originalHtml = btn.innerHTML;
+      
+      console.log('Regenerating PDF badge for folio:', folio);
+
+      try {
+        btn.disabled = true;
+        btn.textContent = 'Generando...';
+
+        const response = await fetch('/api/generate-pdf/' + folio, {
+          method: 'POST'
+        });
+
+        if (!response.ok) {
+          throw new Error('Error al regenerar el PDF.');
+        }
+
+        const result = await response.json();
+        console.log('PDF Regeneration result:', result);
+
+        // Success state
+        btn.textContent = '¡Gafete Actualizado!';
+        btn.style.backgroundColor = 'var(--accent-green)';
+        btn.style.color = '#FFFFFF';
+        btn.style.borderColor = 'var(--accent-green)';
+
+        Swal.fire({
+          icon: 'success',
+          title: '¡PDF Regenerado!',
+          text: 'La credencial se ha regenerado y guardado en la nube con los nuevos datos.',
+          confirmButtonColor: '#1D5FA5',
+          timer: 3000
+        });
+
+        // Restore button state after 3 seconds
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.style.backgroundColor = '';
+          btn.style.color = '';
+          btn.style.borderColor = '';
+          btn.innerHTML = originalHtml;
+        }, 3000);
+
+      } catch (err) {
+        console.error('[PDF Gen Error]:', err);
+        
+        // Error state
+        btn.textContent = 'Error al generar';
+        btn.style.backgroundColor = 'var(--accent-red)';
+        btn.style.color = '#FFFFFF';
+        btn.style.borderColor = 'var(--accent-red)';
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de Generación',
+          text: err.message || 'No se pudo generar la credencial.',
+          confirmButtonColor: '#1D5FA5'
+        });
+
+        // Restore button state after 3 seconds
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.style.backgroundColor = '';
+          btn.style.color = '';
+          btn.style.borderColor = '';
+          btn.innerHTML = originalHtml;
+        }, 3000);
+      }
+    });
+
+    // Load data on start
+    window.addEventListener('DOMContentLoaded', loadParticipantData);
+  </script>
+</body>
+</html>

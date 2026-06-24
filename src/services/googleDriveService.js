@@ -14,29 +14,47 @@ const rootFolderId = process.env.GOOGLE_DRIVE_ROOT_ID || '1NaiQdN_Pxqg0ALWtTK_hE
  * Instantiates the Google Drive client. Returns null if credentials are not configured.
  */
 const getDriveClient = () => {
+  const serviceAccountEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+  const serviceAccountKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
   const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
 
-  if (!refreshToken) {
-    return null;
+  if (serviceAccountEmail && serviceAccountKey) {
+    try {
+      let rawKey = serviceAccountKey;
+      if (rawKey.startsWith('"') && rawKey.endsWith('"')) {
+        rawKey = rawKey.slice(1, -1);
+      }
+      const formattedKey = rawKey.replace(/\\n/g, '\n');
+      const auth = new google.auth.JWT({
+        email: serviceAccountEmail,
+        key: formattedKey,
+        scopes: ['https://www.googleapis.com/auth/drive']
+      });
+      const drive = google.drive({ version: 'v3', auth });
+      return { drive, auth };
+    } catch (error) {
+      console.error('[Google Drive Auth Error - Service Account]:', error.message);
+    }
   }
 
-  try {
-    const oauth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      "https://developers.google.com/oauthplayground"
-    );
-
-    oauth2Client.setCredentials({
-      refresh_token: refreshToken
-    });
-
-    const drive = google.drive({ version: 'v3', auth: oauth2Client });
-    return { drive, auth: oauth2Client };
-  } catch (error) {
-    console.error('[Google Drive Auth Error]: Failed to create client:', error.message);
-    return null;
+  if (refreshToken) {
+    try {
+      const oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        "https://developers.google.com/oauthplayground"
+      );
+      oauth2Client.setCredentials({
+        refresh_token: refreshToken
+      });
+      const drive = google.drive({ version: 'v3', auth: oauth2Client });
+      return { drive, auth: oauth2Client };
+    } catch (error) {
+      console.error('[Google Drive Auth Error - OAuth2]:', error.message);
+    }
   }
+
+  return null;
 };
 
 /**
@@ -170,15 +188,110 @@ export const uploadEnrollmentFiles = async (folio, sedeId, childName, files) => 
 };
 
 /**
+ * Extracts the file ID from a Google Drive URL.
+ */
+const getFileIdFromUrl = (url) => {
+  if (!url) return null;
+  const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (match) return match[1];
+  const queryMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (queryMatch) return queryMatch[1];
+  return null;
+};
+
+/**
+ * Extracts the folder ID from the participant's profileData by querying Drive for the parent of one of their files.
+ * 
+ * @param {Object} profileData - Participant's profile data
+ * @returns {Promise<string|null>} Google Drive folder ID, or null/mock-id if not found/mock
+ */
+export const getFolderIdFromProfile = async (profileData) => {
+  const clientData = getDriveClient();
+  
+  // If no drive client, return mock folder ID
+  if (!clientData) {
+    return 'mock-folder-id';
+  }
+
+  const { drive, auth } = clientData;
+
+  // List of fields in profileData that might contain Google Drive file URLs
+  const fileUrls = [
+    profileData.fotoUrl,
+    profileData.auth1FotoUrl,
+    profileData.auth2FotoUrl,
+    profileData.auth3FotoUrl
+  ];
+
+  for (const url of fileUrls) {
+    if (!url) continue;
+    const fileId = getFileIdFromUrl(url);
+    if (fileId) {
+      try {
+        const res = await drive.files.get({
+          fileId,
+          fields: 'parents',
+          auth
+        });
+        if (res.data.parents && res.data.parents.length > 0) {
+          return res.data.parents[0];
+        }
+      } catch (err) {
+        console.warn(`[Google Drive Service] Warning: Failed to fetch parent for fileId ${fileId}:`, err.message);
+      }
+    }
+  }
+
+  // Fallback: search by folder name
+  try {
+    const childFolderName = `${profileData.folio} - ${profileData.nombre} ${profileData.paterno} ${profileData.materno}`.trim();
+    // 1. Find Sede folder
+    let sedeFolderId;
+    const sedeSearch = await drive.files.list({
+      q: `name = '${profileData.sede}' and '${rootFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
+      fields: 'files(id, name)',
+      spaces: 'drive',
+      auth
+    });
+    if (sedeSearch.data.files && sedeSearch.data.files.length > 0) {
+      sedeFolderId = sedeSearch.data.files[0].id;
+    }
+    
+    const qStr = sedeFolderId 
+      ? `name = '${childFolderName}' and '${sedeFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`
+      : `name = '${childFolderName}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
+      
+    const searchRes = await drive.files.list({
+      q: qStr,
+      fields: 'files(id)',
+      spaces: 'drive',
+      auth
+    });
+    if (searchRes.data.files && searchRes.data.files.length > 0) {
+      return searchRes.data.files[0].id;
+    }
+  } catch (err) {
+    console.error(`[Google Drive Service] Error searching folder by name:`, err.message);
+  }
+
+  return null;
+};
+
+/**
  * Uploads the credential PDF buffer to the participant's Drive folder.
  * 
  * @param {string} folio - Folio ID
  * @param {string} sedeId - Sede ID
  * @param {string} childName - Child's full name
  * @param {Buffer} pdfBuffer - Generated PDF buffer
+ * @param {string} folderId - Participant's Google Drive folder ID
  * @returns {Promise<string>} Web view link of the uploaded file
  */
-export const uploadCredentialPdf = async (folio, sedeId, childName, pdfBuffer) => {
+export const uploadCredentialPdf = async (folio, sedeId, childName, pdfBuffer, folderId) => {
+  if (!folderId) {
+    throw new Error('Falta el folderId del participante');
+  }
+
   const clientData = getDriveClient();
   const fileName = `Credencial_Verano_2026_${childName.replace(/\s+/g, '_')}.pdf`;
 
@@ -193,63 +306,10 @@ export const uploadCredentialPdf = async (folio, sedeId, childName, pdfBuffer) =
   const { drive, auth } = clientData;
 
   try {
-    // 1. Find or create Sede folder
-    let sedeFolderId;
-    const sedeSearch = await drive.files.list({
-      q: `name = '${sedeId}' and '${rootFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
-      fields: 'files(id, name)',
-      spaces: 'drive',
-      auth
-    });
-
-    if (sedeSearch.data.files && sedeSearch.data.files.length > 0) {
-      sedeFolderId = sedeSearch.data.files[0].id;
-    } else {
-      const sedeMetadata = {
-        name: sedeId,
-        mimeType: 'application/vnd.google-apps.folder',
-        parents: [rootFolderId]
-      };
-      const newSedeFolder = await drive.files.create({
-        requestBody: sedeMetadata,
-        fields: 'id',
-        auth
-      });
-      sedeFolderId = newSedeFolder.data.id;
-    }
-
-    // 2. Find or create the child's dynamic subfolder
-    const childFolderName = `${folio} - ${childName}`;
-    let childFolderId;
-    const childSearch = await drive.files.list({
-      q: `name = '${childFolderName}' and '${sedeFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
-      fields: 'files(id, name)',
-      spaces: 'drive',
-      auth
-    });
-
-    if (childSearch.data.files && childSearch.data.files.length > 0) {
-      childFolderId = childSearch.data.files[0].id;
-      console.log(`[Google Drive Service]: Found existing folder for child ${childFolderName}: ${childFolderId}`);
-    } else {
-      const childMetadata = {
-        name: childFolderName,
-        mimeType: 'application/vnd.google-apps.folder',
-        parents: [sedeFolderId]
-      };
-      const childFolder = await drive.files.create({
-        requestBody: childMetadata,
-        fields: 'id',
-        auth
-      });
-      childFolderId = childFolder.data.id;
-      console.log(`[Google Drive Service]: Created new folder for child ${childFolderName}: ${childFolderId}`);
-    }
-
-    // 3. Upload the PDF file buffer
+    // Upload the PDF file buffer to the participant's specific folder
     const fileMetadata = {
       name: fileName,
-      parents: [childFolderId]
+      parents: [folderId]
     };
     const media = {
       mimeType: 'application/pdf',

@@ -4,29 +4,47 @@ import { google } from 'googleapis';
  * Instantiates the Google Sheets client. Returns null if credentials are not configured.
  */
 const getSheetsClient = () => {
+  const serviceAccountEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+  const serviceAccountKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
   const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
 
-  if (!refreshToken) {
-    return null;
+  if (serviceAccountEmail && serviceAccountKey) {
+    try {
+      let rawKey = serviceAccountKey;
+      if (rawKey.startsWith('"') && rawKey.endsWith('"')) {
+        rawKey = rawKey.slice(1, -1);
+      }
+      const formattedKey = rawKey.replace(/\\n/g, '\n');
+      const auth = new google.auth.JWT({
+        email: serviceAccountEmail,
+        key: formattedKey,
+        scopes: ['https://www.googleapis.com/auth/spreadsheets']
+      });
+      const sheets = google.sheets({ version: 'v4', auth });
+      return { sheets, auth };
+    } catch (error) {
+      console.error('[Google Sheets Auth Error - Service Account]:', error.message);
+    }
   }
 
-  try {
-    const oauth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      "https://developers.google.com/oauthplayground"
-    );
-
-    oauth2Client.setCredentials({
-      refresh_token: refreshToken
-    });
-
-    const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
-    return { sheets, auth: oauth2Client };
-  } catch (error) {
-    console.error('[Google Sheets Auth Error]: Failed to create client:', error.message);
-    return null;
+  if (refreshToken) {
+    try {
+      const oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        "https://developers.google.com/oauthplayground"
+      );
+      oauth2Client.setCredentials({
+        refresh_token: refreshToken
+      });
+      const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
+      return { sheets, auth: oauth2Client };
+    } catch (error) {
+      console.error('[Google Sheets Auth Error - OAuth2]:', error.message);
+    }
   }
+
+  return null;
 };
 
 /**
@@ -334,3 +352,81 @@ export const updateRowPdfLink = async (folioId, pdfUrl, logText) => {
     throw error;
   }
 };
+
+/**
+ * Updates editable participant cells in Google Sheets by Folio ID.
+ * 
+ * @param {string} folioId - Unique identifier
+ * @param {Object} updatedData - Object containing updated text fields
+ */
+export const updateRowByFolio = async (folioId, updatedData) => {
+  const clientData = getSheetsClient();
+  const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+
+  if (!clientData || !spreadsheetId) {
+    console.log(`\n📊  [Google Sheets Mock Mode]: Simulating updating row for folio ${folioId}`);
+    console.log(`Updated Data:`, updatedData);
+    console.log(`📊  [Google Sheets Mock Mode]: Completed update simulation.\n`);
+    return { success: true, mockUpdated: true };
+  }
+
+  const { sheets, auth } = clientData;
+
+  try {
+    // 1. Fetch values to find the row index and get the complete row
+    const getResponse = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: 'BD_Inscripciones!A:AH',
+      auth
+    });
+
+    const rows = getResponse.data.values;
+    if (!rows || rows.length === 0) {
+      throw new Error('No rows found in the sheet.');
+    }
+
+    const rowIndex = rows.findLastIndex(r => r[1] === folioId);
+    if (rowIndex === -1) {
+      throw new Error(`Folio ${folioId} not found in Google Sheets.`);
+    }
+
+    const rowNumber = rowIndex + 1;
+    const row = rows[rowIndex];
+
+    // Ensure the row array has at least 34 elements (up to column AH, index 33) to prevent out of bounds/empty indexes
+    while (row.length < 34) {
+      row.push('');
+    }
+
+    // 2. Overwrite ONLY the specified indices
+    row[3] = updatedData.nombre || '';              // Índice 3 (Columna D)
+    row[4] = updatedData.paterno || '';             // Índice 4 (Columna E)
+    row[5] = updatedData.materno || '';             // Índice 5 (Columna F)
+    row[10] = updatedData.telefonoTutor || '';      // Índice 10 (Columna K)
+    row[12] = updatedData.contactoEmergencia || '';  // Índice 12 (Columna M)
+    row[13] = updatedData.telefonoEmergencia || '';  // Índice 13 (Columna N)
+    row[14] = updatedData.alergias || '';           // Índice 14 (Columna O)
+    row[15] = updatedData.padecimientos || '';      // Índice 15 (Columna P)
+
+    const updateRange = `BD_Inscripciones!A${rowNumber}:AH${rowNumber}`;
+
+    console.log(`[Google Sheets Service]: Updating row ${rowNumber} with range ${updateRange}`);
+
+    const updateResponse = await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: updateRange,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [row]
+      },
+      auth
+    });
+
+    console.log(`[Google Sheets Service]: Row updated successfully. Updated cells: ${updateResponse.data.updatedCells}`);
+    return { success: true, updatedCells: updateResponse.data.updatedCells };
+  } catch (error) {
+    console.error('[Google Sheets Service Error]: Failed to update row by folio:', error.message);
+    throw error;
+  }
+};
+

@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { getProfile, getEditPortal } from '../controllers/profileController.js';
 import { generateAndSaveCredential } from '../controllers/pdfController.js';
+import { updateProfile } from '../controllers/editController.js';
 
 const router = express.Router();
 
@@ -24,12 +25,17 @@ router.get('/perfil/:folio_id', (req, res) => {
   res.sendFile(path.join(__dirname, '../views/profile.html'));
 });
 
+const renderEditPage = (req, res) => {
+  res.sendFile(path.join(__dirname, '../views/edit.html'));
+};
+
 // Web Route: Participant file updating portal
-router.get('/editar/:folio_id', getEditPortal);
+router.get('/editar/:folio', renderEditPage);
 
 // Alias API Route (direct root mapping)
 router.get('/api/profile/:folio', getProfile);
 router.post('/api/generate-pdf/:folio', generateAndSaveCredential);
+router.put('/api/editar/:folio', updateProfile);
 
 export default router;
 

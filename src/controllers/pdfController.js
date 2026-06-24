@@ -1,6 +1,6 @@
 import { getEnrollmentByFolio, updateRowPdfLink } from '../services/googleSheetsService.js';
 import { generateCredential } from '../services/pdfService.js';
-import { uploadCredentialPdf } from '../services/googleDriveService.js';
+import { uploadCredentialPdf, getFolderIdFromProfile } from '../services/googleDriveService.js';
 
 /**
  * Controller to handle credential generation, Drive upload, and Sheets row update.
@@ -22,9 +22,11 @@ export const generateAndSaveCredential = async (req, res) => {
     // 2. Generate PDF badge buffer
     const pdfBuffer = await generateCredential(profileData);
 
-    // 3. Upload PDF buffer to Google Drive
+    // 3. Extract Drive folder ID and upload PDF buffer to Google Drive
+    const folderId = await getFolderIdFromProfile(profileData);
+    console.log(`[PDF Controller]: Extracted folderId for folio ${folio}:`, folderId);
     const childFullName = `${profileData.nombre} ${profileData.paterno} ${profileData.materno}`.trim();
-    const pdfUrl = await uploadCredentialPdf(folio, profileData.sede, childFullName, pdfBuffer);
+    const pdfUrl = await uploadCredentialPdf(folio, profileData.sede, childFullName, pdfBuffer, folderId);
 
     // 4. Update Google Sheets database (AG & AH columns)
     const logText = `Generado el ${new Date().toISOString()}`;
