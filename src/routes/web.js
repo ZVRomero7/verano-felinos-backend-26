@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getProfile, getEditPortal } from '../controllers/profileController.js';
+import { generateAndSaveCredential } from '../controllers/pdfController.js';
 
 const router = express.Router();
 
@@ -28,5 +29,7 @@ router.get('/editar/:folio_id', getEditPortal);
 
 // Alias API Route (direct root mapping)
 router.get('/api/profile/:folio', getProfile);
+router.post('/api/generate-pdf/:folio', generateAndSaveCredential);
 
 export default router;
+

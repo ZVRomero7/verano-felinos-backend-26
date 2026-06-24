@@ -270,3 +270,67 @@ export const getEnrollmentByFolio = async (folioId) => {
     throw error;
   }
 };
+
+/**
+ * Updates columns AG (Log) and AH (PDF Link) for a specific participant row.
+ * 
+ * @param {string} folioId - Unique identifier
+ * @param {string} pdfUrl - Google Drive PDF web view URL
+ * @param {string} logText - Timestamp or log message
+ */
+export const updateRowPdfLink = async (folioId, pdfUrl, logText) => {
+  const clientData = getSheetsClient();
+  const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+
+  if (!clientData || !spreadsheetId) {
+    console.log(`\n📊  [Google Sheets Mock Mode]: Simulating updating PDF link and Log for folio ${folioId}`);
+    console.log(`Log: "${logText}"`);
+    console.log(`PDF Link: "${pdfUrl}"`);
+    console.log(`📊  [Google Sheets Mock Mode]: Completed update simulation.\n`);
+    return { success: true, mockUpdated: true };
+  }
+
+  const { sheets, auth } = clientData;
+
+  try {
+    // 1. Fetch values to find the row index
+    const getResponse = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: 'BD_Inscripciones!A:AH',
+      auth
+    });
+
+    const rows = getResponse.data.values;
+    if (!rows || rows.length === 0) {
+      throw new Error('No rows found in the sheet.');
+    }
+
+    const rowIndex = rows.findIndex(r => r[1] === folioId);
+    if (rowIndex === -1) {
+      throw new Error(`Folio ${folioId} not found in Google Sheets.`);
+    }
+
+    // Google Sheets rows are 1-indexed. Since A1 notation matches the array index,
+    // rowIndex + 1 gives the exact row number.
+    const rowNumber = rowIndex + 1;
+    const updateRange = `BD_Inscripciones!AG${rowNumber}:AH${rowNumber}`;
+
+    console.log(`[Google Sheets Service]: Updating row ${rowNumber} with range ${updateRange}`);
+
+    const updateResponse = await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: updateRange,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [[logText, pdfUrl]]
+      },
+      auth
+    });
+
+    console.log(`[Google Sheets Service]: Row updated successfully. Updated cells: ${updateResponse.data.updatedCells}`);
+    return { success: true, updatedCells: updateResponse.data.updatedCells };
+  } catch (error) {
+    console.error('[Google Sheets Service Error]: Failed to update row PDF link:', error.message);
+    throw error;
+  }
+};

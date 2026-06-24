@@ -2,6 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import { handleEnrollment } from '../controllers/enrollController.js';
 import { getProfile, updateFiles } from '../controllers/profileController.js';
+import { generateAndSaveCredential } from '../controllers/pdfController.js';
 
 const router = express.Router();
 
@@ -32,4 +33,8 @@ router.get('/profile/:folio', getProfile);
 // API Route: Update files for a specific enrollment folio
 router.put('/edit/:folio_id', uploadFields, updateFiles);
 
+// API Route: Generate and save participant PDF credential
+router.post('/generate-pdf/:folio', generateAndSaveCredential);
+
 export default router;
+

@@ -168,3 +168,118 @@ export const uploadEnrollmentFiles = async (folio, sedeId, childName, files) => 
     throw error;
   }
 };
+
+/**
+ * Uploads the credential PDF buffer to the participant's Drive folder.
+ * 
+ * @param {string} folio - Folio ID
+ * @param {string} sedeId - Sede ID
+ * @param {string} childName - Child's full name
+ * @param {Buffer} pdfBuffer - Generated PDF buffer
+ * @returns {Promise<string>} Web view link of the uploaded file
+ */
+export const uploadCredentialPdf = async (folio, sedeId, childName, pdfBuffer) => {
+  const clientData = getDriveClient();
+  const fileName = `Credencial_Verano_2026_${childName.replace(/\s+/g, '_')}.pdf`;
+
+  if (!clientData) {
+    const mockUrl = `https://drive.google.com/mock-file/${folio}/${fileName}`;
+    console.log(`\n☁️  [Google Drive Mock Mode]: PDF upload simulation`);
+    console.log(`📁 Target File: "${fileName}" -> URL: ${mockUrl}`);
+    console.log(`☁️  [Google Drive Mock Mode]: Completed PDF upload simulation.\n`);
+    return mockUrl;
+  }
+
+  const { drive, auth } = clientData;
+
+  try {
+    // 1. Find or create Sede folder
+    let sedeFolderId;
+    const sedeSearch = await drive.files.list({
+      q: `name = '${sedeId}' and '${rootFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
+      fields: 'files(id, name)',
+      spaces: 'drive',
+      auth
+    });
+
+    if (sedeSearch.data.files && sedeSearch.data.files.length > 0) {
+      sedeFolderId = sedeSearch.data.files[0].id;
+    } else {
+      const sedeMetadata = {
+        name: sedeId,
+        mimeType: 'application/vnd.google-apps.folder',
+        parents: [rootFolderId]
+      };
+      const newSedeFolder = await drive.files.create({
+        requestBody: sedeMetadata,
+        fields: 'id',
+        auth
+      });
+      sedeFolderId = newSedeFolder.data.id;
+    }
+
+    // 2. Find or create the child's dynamic subfolder
+    const childFolderName = `${folio} - ${childName}`;
+    let childFolderId;
+    const childSearch = await drive.files.list({
+      q: `name = '${childFolderName}' and '${sedeFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
+      fields: 'files(id, name)',
+      spaces: 'drive',
+      auth
+    });
+
+    if (childSearch.data.files && childSearch.data.files.length > 0) {
+      childFolderId = childSearch.data.files[0].id;
+      console.log(`[Google Drive Service]: Found existing folder for child ${childFolderName}: ${childFolderId}`);
+    } else {
+      const childMetadata = {
+        name: childFolderName,
+        mimeType: 'application/vnd.google-apps.folder',
+        parents: [sedeFolderId]
+      };
+      const childFolder = await drive.files.create({
+        requestBody: childMetadata,
+        fields: 'id',
+        auth
+      });
+      childFolderId = childFolder.data.id;
+      console.log(`[Google Drive Service]: Created new folder for child ${childFolderName}: ${childFolderId}`);
+    }
+
+    // 3. Upload the PDF file buffer
+    const fileMetadata = {
+      name: fileName,
+      parents: [childFolderId]
+    };
+    const media = {
+      mimeType: 'application/pdf',
+      body: Readable.from(pdfBuffer)
+    };
+
+    const response = await drive.files.create({
+      requestBody: fileMetadata,
+      media: media,
+      fields: 'id, webViewLink',
+      auth
+    });
+
+    // Make the file publicly readable
+    try {
+      await drive.permissions.create({
+        fileId: response.data.id,
+        requestBody: {
+          role: 'reader',
+          type: 'anyone'
+        },
+        auth
+      });
+    } catch (permError) {
+      console.error(`[Google Drive Service] Warning: Failed to share PDF file:`, permError.message);
+    }
+
+    return response.data.webViewLink;
+  } catch (error) {
+    console.error('[Google Drive Service Error]: Failed to upload credential PDF:', error.message);
+    throw error;
+  }
+};
