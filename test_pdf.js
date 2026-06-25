@@ -5,15 +5,15 @@ import { generateCredential } from './src/services/pdfService.js';
 const testProfile = {
     folio: 'UDU-26-99999',
     sede: 'UDU', // Cambia a 'CEFID' para probar la otra plantilla
-    nombre: 'Niño',
-    paterno: 'Prueba',
+    nombre: 'Adrián',
+    paterno: 'Romero',
     materno: 'Felino',
     fotoUrl: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=300&q=80', // Foto dummy de internet
-    auth1Nombre: 'Tutor Uno',
+    auth1Nombre: 'Victor Romero',
     auth1FotoUrl: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=300&q=80',
-    auth2Nombre: 'Familiar Dos',
+    auth2Nombre: 'Alexander Romero',
     auth2FotoUrl: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=300&q=80',
-    auth3Nombre: 'Amigo Tres',
+    auth3Nombre: 'Linda Ledesma',
     auth3FotoUrl: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=300&q=80'
 };
 

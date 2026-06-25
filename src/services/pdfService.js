@@ -19,6 +19,7 @@ const config = {
 
   // Inscrito: Se movió a la derecha (eje X) y se ajustó el alto para el rectángulo
   inscrito: { x: 226, y: 650, width: 65, height: 75 },
+  etiquetaFrontal: { xCenter: 258.5, y: 635, size: 10 },
 
   // Textos para el PDF de respaldo
   labels: {
@@ -31,9 +32,9 @@ const config = {
   // Lado Derecho (Personas Autorizadas)
   // Se subió drásticamente el eje Y para salir de los logos. Se ajustaron los anchos.
   // textX es el centro exacto (x + width/2)
-  auth1: { x: 332, y: 670, width: 55, height: 65, textX: 350, textY: 659 },
-  auth2: { x: 390, y: 670, width: 55, height: 65, textX: 415, textY: 659 },
-  auth3: { x: 450, y: 670, width: 55, height: 65, textX: 470, textY: 659 }
+  auth1: { x: 330, y: 665, width: 64, height: 76, textX: 362, textY: 654 },
+  auth2: { x: 398, y: 665, width: 64, height: 76, textX: 430, textY: 654 },
+  auth3: { x: 466, y: 665, width: 64, height: 76, textX: 498, textY: 654 }
 };
 
 /**
@@ -168,6 +169,54 @@ export const generateCredential = async (profileData) => {
     }
   }
 
+  // Draw child's name and age inside the green rounded rectangle under the photo with typography adjustments
+  const nombre = profileData.nombre || '';
+  const paterno = profileData.paterno || '';
+  const edadValue = profileData.edad || '8';
+
+  const nombreTexto = `${nombre} ${paterno}`.trim().toUpperCase();
+  const edadTexto = ` - ${edadValue} años`;
+
+  let sizeNombre = config.etiquetaFrontal.size * 0.85;
+  let sizeEdad = sizeNombre * 0.85;
+
+  let anchoNombre = fontHelveticaBold.widthOfTextAtSize(nombreTexto, sizeNombre);
+  let anchoEdad = fontHelveticaBold.widthOfTextAtSize(edadTexto, sizeEdad);
+  let anchoTotal = anchoNombre + anchoEdad;
+
+  // Fit-to-Box dynamic scaling
+  const widthRectangulo = 110;
+  const maxWidth = widthRectangulo - 15;
+
+  if (anchoTotal > maxWidth) {
+    const scaleFactor = maxWidth / anchoTotal;
+    sizeNombre *= scaleFactor;
+    sizeEdad *= scaleFactor;
+
+    // Recalculate widths with the new scaled sizes
+    anchoNombre = fontHelveticaBold.widthOfTextAtSize(nombreTexto, sizeNombre);
+    anchoEdad = fontHelveticaBold.widthOfTextAtSize(edadTexto, sizeEdad);
+    anchoTotal = anchoNombre + anchoEdad;
+  }
+
+  const startX = config.etiquetaFrontal.xCenter - (anchoTotal / 2);
+
+  page.drawText(nombreTexto, {
+    x: startX,
+    y: config.etiquetaFrontal.y,
+    size: sizeNombre,
+    font: fontHelveticaBold,
+    color: rgb(1, 1, 1)
+  });
+
+  page.drawText(edadTexto, {
+    x: startX + anchoNombre,
+    y: config.etiquetaFrontal.y,
+    size: sizeEdad,
+    font: fontHelveticaBold,
+    color: rgb(1, 1, 1)
+  });
+
   const isFallbackPage = pdfDoc.getPages().length === 1 && !fs.existsSync(templatePath);
   if (isFallbackPage) {
     drawCenteredText(page, 'CREDENCIAL DIGITAL', fontHelveticaBold, config.labels.title.size, pageWidth / 2, config.labels.title.y, rgb(1, 1, 1));
@@ -203,7 +252,28 @@ export const generateCredential = async (profileData) => {
     }
 
     const displayShortName = authName.split(' ')[0] + ' ' + (authName.split(' ')[1] || '');
-    drawCenteredText(page, displayShortName, fontHelveticaBold, 8, authConfig.textX, authConfig.textY, rgb(0.13, 0.15, 0.16));
+    
+    // Fit-to-Box dynamic scaling for authorized names
+    const sizeBase = 8;
+    const maxWidthAuth = authConfig.width + 10;
+    let textWidth = fontHelveticaBold.widthOfTextAtSize(displayShortName, sizeBase);
+    let tamañoFinal = sizeBase;
+
+    if (textWidth > maxWidthAuth) {
+      const scaleFactor = maxWidthAuth / textWidth;
+      tamañoFinal = sizeBase * scaleFactor;
+      textWidth = fontHelveticaBold.widthOfTextAtSize(displayShortName, tamañoFinal);
+    }
+
+    const textStartX = authConfig.textX - (textWidth / 2);
+
+    page.drawText(displayShortName, {
+      x: textStartX,
+      y: authConfig.textY,
+      size: tamañoFinal,
+      font: fontHelveticaBold,
+      color: rgb(0.13, 0.15, 0.16)
+    });
   }
 
   const pdfBytes = await pdfDoc.save();
