@@ -8,13 +8,19 @@ const testProfile = {
     nombre: 'Adrián',
     paterno: 'Romero',
     materno: 'Felino',
+    edad: '8',
     fotoUrl: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=300&q=80', // Foto dummy de internet
+    emergencyContactName: 'Roberto Gómez',
+    emergencyContactPhone: '442-123-4567',
     auth1Nombre: 'Victor Romero',
     auth1FotoUrl: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=300&q=80',
+    auth1Telefono: '442-111-2233',
     auth2Nombre: 'Alexander Romero',
     auth2FotoUrl: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=300&q=80',
+    auth2Telefono: '442-444-5566',
     auth3Nombre: 'Linda Ledesma',
-    auth3FotoUrl: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=300&q=80'
+    auth3FotoUrl: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=300&q=80',
+    auth3Telefono: '442-777-8899'
 };
 
 const runTest = async () => {

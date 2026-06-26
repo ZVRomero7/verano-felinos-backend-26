@@ -12,29 +12,33 @@ const __dirname = path.dirname(__filename);
 // Nota: En pdf-lib el origen de coordenadas (0,0) es la esquina INFERIOR IZQUIERDA.
 const config = {
   pageSize: { width: 612, height: 792 },
-
-  // Lado Izquierdo (Frente del Gafete)
-  // QR: Se bajó el eje Y y se movió ligeramente a la derecha
-  qr: { x: 43, y: 629, size: 52 },
-
-  // Inscrito: Se movió a la derecha (eje X) y se ajustó el alto para el rectángulo
-  inscrito: { x: 226, y: 650, width: 65, height: 75 },
-  etiquetaFrontal: { xCenter: 258.5, y: 635, size: 10 },
-
-  // Textos para el PDF de respaldo
+  qr: { x: 40, y: 643, size: 55 }, // x - 5, y + 5, size - 5%
+  fotoInscrito: { x: 200, y: 645, width: 75, height: 90 },
+  textosInscrito: {
+    xNombre: 60, // x - 15 - 10
+    yNombre: 607, // Emparejado con el Y de los nombres de autorizados
+    xContacto: 90, // Movido 20 puntos menos
+    xTelefono: 240, // Movido 30 puntos a la izquierda para evitar superposición
+    yEmergencia: 583,
+    sizeNombre: 14,
+    maxWidthNombre: 220
+  },
+  autorizados: {
+    startX: 310, // Alineado a la izquierda con el primer recuadro
+    yFoto: 630,
+    width: 95, // Reducido un 5% para que encaje en las cajas
+    height: 120,
+    gap: 4, // Ajustado ligeramente para distribuir el nuevo tamaño
+    yNombre: 606,
+    yTelefono: 583,
+    sizeBase: 9
+  },
   labels: {
     title: { y: 460, size: 16, color: rgb(0, 0.28, 0.52) },
     name: { y: 275, size: 13, color: rgb(0.13, 0.15, 0.16) },
     folio: { y: 255, size: 10, color: rgb(0.44, 0.5, 0.59) },
     sede: { y: 238, size: 10, color: rgb(0.11, 0.37, 0.65) }
-  },
-
-  // Lado Derecho (Personas Autorizadas)
-  // Se subió drásticamente el eje Y para salir de los logos. Se ajustaron los anchos.
-  // textX es el centro exacto (x + width/2)
-  auth1: { x: 330, y: 665, width: 64, height: 76, textX: 362, textY: 654 },
-  auth2: { x: 398, y: 665, width: 64, height: 76, textX: 430, textY: 654 },
-  auth3: { x: 466, y: 665, width: 64, height: 76, textX: 498, textY: 654 }
+  }
 };
 
 /**
@@ -151,7 +155,10 @@ export const generateCredential = async (profileData) => {
   const qrImage = await pdfDoc.embedPng(qrBuffer);
 
   page.drawImage(qrImage, {
-    x: config.qr.x, y: config.qr.y, width: config.qr.size, height: config.qr.size
+    x: config.qr?.x || 70,
+    y: config.qr?.y || 603,
+    width: config.qr?.size || 72,
+    height: config.qr?.size || 72
   });
 
   // 3. Download and draw child/inscrito avatar
@@ -159,103 +166,141 @@ export const generateCredential = async (profileData) => {
     const inscritoImageBuffer = await downloadImage(profileData.fotoUrl);
     const inscritoImage = await embedImageSafely(pdfDoc, inscritoImageBuffer);
     if (inscritoImage) {
+      const fx = config.fotoInscrito?.x || 215;
+      const fy = config.fotoInscrito?.y || 603;
+      const fw = config.fotoInscrito?.width || 80;
+      const fh = config.fotoInscrito?.height || 108;
       page.drawImage(inscritoImage, {
-        x: config.inscrito.x, y: config.inscrito.y, width: config.inscrito.width, height: config.inscrito.height
+        x: fx, y: fy, width: fw, height: fh
       });
       page.drawRectangle({
-        x: config.inscrito.x, y: config.inscrito.y, width: config.inscrito.width, height: config.inscrito.height,
+        x: fx, y: fy, width: fw, height: fh,
         borderColor: rgb(1, 1, 1), borderWidth: 3, color: rgb(0, 0, 0), opacity: 0, borderOpacity: 1
       });
     }
   }
 
-  // Draw child's name and age inside the green rounded rectangle under the photo with typography adjustments
+  // 4. Draw child's name, age, emergency contact name and phone (Lado Derecho)
   const nombre = profileData.nombre || '';
   const paterno = profileData.paterno || '';
   const edadValue = profileData.edad || '8';
 
-  const nombreTexto = `${nombre} ${paterno}`.trim().toUpperCase();
-  const edadTexto = ` - ${edadValue} años`;
+  const nombreCompletoConEdad = `${nombre} ${paterno} - ${edadValue} AÑOS`.trim().toUpperCase();
 
-  let sizeNombre = config.etiquetaFrontal.size * 0.85;
-  let sizeEdad = sizeNombre * 0.85;
+  let sizeNombre = config.textosInscrito?.sizeNombre || 14;
+  const maxWidthNombre = config.textosInscrito?.maxWidthNombre || 220;
 
-  let anchoNombre = fontHelveticaBold.widthOfTextAtSize(nombreTexto, sizeNombre);
-  let anchoEdad = fontHelveticaBold.widthOfTextAtSize(edadTexto, sizeEdad);
-  let anchoTotal = anchoNombre + anchoEdad;
-
-  // Fit-to-Box dynamic scaling
-  const widthRectangulo = 110;
-  const maxWidth = widthRectangulo - 15;
-
-  if (anchoTotal > maxWidth) {
-    const scaleFactor = maxWidth / anchoTotal;
+  let anchoTotal = fontHelveticaBold.widthOfTextAtSize(nombreCompletoConEdad, sizeNombre);
+  if (anchoTotal > maxWidthNombre) {
+    const scaleFactor = maxWidthNombre / anchoTotal;
     sizeNombre *= scaleFactor;
-    sizeEdad *= scaleFactor;
-
-    // Recalculate widths with the new scaled sizes
-    anchoNombre = fontHelveticaBold.widthOfTextAtSize(nombreTexto, sizeNombre);
-    anchoEdad = fontHelveticaBold.widthOfTextAtSize(edadTexto, sizeEdad);
-    anchoTotal = anchoNombre + anchoEdad;
   }
 
-  const startX = config.etiquetaFrontal.xCenter - (anchoTotal / 2);
-
-  page.drawText(nombreTexto, {
-    x: startX,
-    y: config.etiquetaFrontal.y,
+  const dx = config.textosInscrito?.xNombre || 90;
+  const dyNombre = config.textosInscrito?.yNombre || 577;
+  page.drawText(nombreCompletoConEdad, {
+    x: dx,
+    y: dyNombre,
     size: sizeNombre,
     font: fontHelveticaBold,
-    color: rgb(1, 1, 1)
+    color: rgb(0, 0, 0)
   });
 
-  page.drawText(edadTexto, {
-    x: startX + anchoNombre,
-    y: config.etiquetaFrontal.y,
-    size: sizeEdad,
-    font: fontHelveticaBold,
-    color: rgb(1, 1, 1)
-  });
+  // Extract and draw Emergency Contact name and phone next to their labels
+  const emergencyContactName = (profileData.emergencyContactName || profileData.contactoEmergencia || '').trim().toUpperCase();
+  const emergencyContactPhone = (profileData.emergencyContactPhone || profileData.telefonoEmergencia || '').trim();
+
+  const xContacto = config.textosInscrito?.xContacto || 145;
+  const xTelefono = config.textosInscrito?.xTelefono || 350;
+  const yEmergencia = config.textosInscrito?.yEmergencia || 553;
+  const sizeBaseEmergencia = config.autorizados?.sizeBase || 9;
+
+  if (emergencyContactName) {
+    page.drawText(emergencyContactName, {
+      x: xContacto,
+      y: yEmergencia,
+      size: sizeBaseEmergencia,
+      font: fontHelveticaBold,
+      color: rgb(0.13, 0.15, 0.16)
+    });
+  }
+
+  if (emergencyContactPhone) {
+    page.drawText(emergencyContactPhone, {
+      x: xTelefono,
+      y: yEmergencia,
+      size: sizeBaseEmergencia,
+      font: fontHelvetica,
+      color: rgb(0.13, 0.15, 0.16)
+    });
+  }
 
   const isFallbackPage = pdfDoc.getPages().length === 1 && !fs.existsSync(templatePath);
   if (isFallbackPage) {
-    drawCenteredText(page, 'CREDENCIAL DIGITAL', fontHelveticaBold, config.labels.title.size, pageWidth / 2, config.labels.title.y, rgb(1, 1, 1));
+    const titleSize = config.labels?.title?.size || 16;
+    const titleY = config.labels?.title?.y || 460;
+    const titleColor = config.labels?.title?.color || rgb(0, 0.28, 0.52);
+    drawCenteredText(page, 'CREDENCIAL DIGITAL', fontHelveticaBold, titleSize, pageWidth / 2, titleY, titleColor);
+
     const fullName = `${profileData.nombre} ${profileData.paterno} ${profileData.materno}`.trim().toUpperCase();
-    drawCenteredText(page, fullName, fontHelveticaBold, config.labels.name.size, pageWidth / 2, config.labels.name.y, config.labels.name.color);
-    drawCenteredText(page, `FOLIO: ${profileData.folio}`, fontHelvetica, config.labels.folio.size, pageWidth / 2, config.labels.folio.y, config.labels.folio.color);
-    drawCenteredText(page, `SEDE: ${profileData.sede}`, fontHelveticaBold, config.labels.sede.size, pageWidth / 2, config.labels.sede.y, config.labels.sede.color);
+    const nameSize = config.labels?.name?.size || 13;
+    const nameY = config.labels?.name?.y || 275;
+    const nameColor = config.labels?.name?.color || rgb(0.13, 0.15, 0.16);
+    drawCenteredText(page, fullName, fontHelveticaBold, nameSize, pageWidth / 2, nameY, nameColor);
+
+    const folioSize = config.labels?.folio?.size || 10;
+    const folioY = config.labels?.folio?.y || 255;
+    const folioColor = config.labels?.folio?.color || rgb(0.44, 0.5, 0.59);
+    drawCenteredText(page, `FOLIO: ${profileData.folio}`, fontHelvetica, folioSize, pageWidth / 2, folioY, folioColor);
+
+    const sedeSize = config.labels?.sede?.size || 10;
+    const sedeY = config.labels?.sede?.y || 238;
+    const sedeColor = config.labels?.sede?.color || rgb(0.11, 0.37, 0.65);
+    drawCenteredText(page, `SEDE: ${profileData.sede}`, fontHelveticaBold, sedeSize, pageWidth / 2, sedeY, sedeColor);
+
     drawCenteredText(page, 'PERSONAS AUTORIZADAS', fontHelveticaBold, 9, pageWidth / 2, 222, rgb(0.44, 0.5, 0.59));
   }
 
-  // 4. Download and draw Authorized persons
+  // 5. Download and draw Authorized persons dynamically from left to right (top-right row)
+  const activeAuths = [];
   for (let i = 1; i <= 3; i++) {
-    const authName = profileData[`auth${i}Nombre`] || profileData[`auth${i}_name`];
-    const authPhotoUrl = profileData[`auth${i}FotoUrl`] || profileData[`auth${i}_photo_url`];
-    const authConfig = config[`auth${i}`];
+    const name = profileData[`auth${i}Nombre`] || profileData[`auth${i}_name`];
+    const photo = profileData[`auth${i}FotoUrl`] || profileData[`auth${i}_photo_url`];
+    const phone = profileData[`auth${i}Telefono`] || profileData[`auth${i}_phone`];
+    if (name && name.trim()) {
+      activeAuths.push({ name, photo, phone });
+    }
+  }
 
-    if (!authName || !authName.trim()) continue;
+  let currentX = config.autorizados?.startX || 322;
 
-    console.log(`[PDF Service]: Processing Authorized Person ${i}: ${authName}`);
+  for (let index = 0; index < activeAuths.length; index++) {
+    const auth = activeAuths[index];
 
-    if (authPhotoUrl) {
-      const authImageBuffer = await downloadImage(authPhotoUrl);
+    console.log(`[PDF Service]: Rendering Authorized Person ${index + 1}: ${auth.name} at x: ${currentX}`);
+
+    const ayFoto = config.autorizados?.yFoto || 603;
+    const aw = config.autorizados?.width || 73;
+    const ah = config.autorizados?.height || 105;
+
+    if (auth.photo) {
+      const authImageBuffer = await downloadImage(auth.photo);
       const authImage = await embedImageSafely(pdfDoc, authImageBuffer);
       if (authImage) {
         page.drawImage(authImage, {
-          x: authConfig.x, y: authConfig.y, width: authConfig.width, height: authConfig.height
+          x: currentX, y: ayFoto, width: aw, height: ah
         });
         page.drawRectangle({
-          x: authConfig.x, y: authConfig.y, width: authConfig.width, height: authConfig.height,
+          x: currentX, y: ayFoto, width: aw, height: ah,
           borderColor: rgb(1, 1, 1), borderWidth: 2, color: rgb(0, 0, 0), opacity: 0, borderOpacity: 1
         });
       }
     }
 
-    const displayShortName = authName.split(' ')[0] + ' ' + (authName.split(' ')[1] || '');
-    
-    // Fit-to-Box dynamic scaling for authorized names
-    const sizeBase = 8;
-    const maxWidthAuth = authConfig.width + 10;
+    const displayShortName = auth.name.split(' ')[0] + ' ' + (auth.name.split(' ')[1] || '');
+
+    const sizeBase = config.autorizados?.sizeBase || 9;
+    const maxWidthAuth = aw + 5;
     let textWidth = fontHelveticaBold.widthOfTextAtSize(displayShortName, sizeBase);
     let tamañoFinal = sizeBase;
 
@@ -265,15 +310,33 @@ export const generateCredential = async (profileData) => {
       textWidth = fontHelveticaBold.widthOfTextAtSize(displayShortName, tamañoFinal);
     }
 
-    const textStartX = authConfig.textX - (textWidth / 2);
+    const textStartX = (currentX + aw / 2) - (textWidth / 2);
+    const ayNombre = config.autorizados?.yNombre || 577;
 
     page.drawText(displayShortName, {
       x: textStartX,
-      y: authConfig.textY,
+      y: ayNombre,
       size: tamañoFinal,
       font: fontHelveticaBold,
       color: rgb(0.13, 0.15, 0.16)
     });
+
+    // Draw phone number
+    const phoneText = (auth.phone || '').trim();
+    if (phoneText) {
+      const phoneWidth = fontHelvetica.widthOfTextAtSize(phoneText, sizeBase);
+      const phoneStartX = (currentX + aw / 2) - (phoneWidth / 2);
+      const ayTelefono = config.autorizados?.yTelefono || 553;
+      page.drawText(phoneText, {
+        x: phoneStartX,
+        y: ayTelefono,
+        size: sizeBase,
+        font: fontHelvetica,
+        color: rgb(0.13, 0.15, 0.16)
+      });
+    }
+
+    currentX += aw + (config.autorizados?.gap || 12);
   }
 
   const pdfBytes = await pdfDoc.save();
