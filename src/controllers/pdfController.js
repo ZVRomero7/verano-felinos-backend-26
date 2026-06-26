@@ -22,11 +22,19 @@ export const generateAndSaveCredential = async (req, res) => {
     // 2. Generate PDF badge buffer
     const pdfBuffer = await generateCredential(profileData);
 
-    // 3. Extract Drive folder ID and upload PDF buffer to Google Drive
+    // 3. Extract Drive folder ID and upload PDF buffer to Google Drive (Dual upload: individual folder and master folder)
     const folderId = await getFolderIdFromProfile(profileData);
     console.log(`[PDF Controller]: Extracted folderId for folio ${folio}:`, folderId);
     const childFullName = `${profileData.nombre} ${profileData.paterno} ${profileData.materno}`.trim();
-    const pdfUrl = await uploadCredentialPdf(folio, profileData.sede, childFullName, pdfBuffer, folderId);
+    
+    const masterFolderId = '1Qj6Z6BMC2BnkIvXYiKBhDkPQoFaa53yF';
+    const [pdfUrl] = await Promise.all([
+      uploadCredentialPdf(folio, profileData.sede, childFullName, pdfBuffer, folderId),
+      uploadCredentialPdf(folio, profileData.sede, childFullName, pdfBuffer, masterFolderId).catch(err => {
+        console.error(`[PDF Controller Warning]: Failed to upload copy to master folder (${masterFolderId}):`, err.message);
+        return null;
+      })
+    ]);
 
     // 4. Update Google Sheets database (AG & AH columns)
     const logText = `Generado el ${new Date().toISOString()}`;
