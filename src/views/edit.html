@@ -11,6 +11,7 @@
   
   <!-- SweetAlert2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.1/dist/browser-image-compression.js"></script>
   
   <style>
     :root {
@@ -699,18 +700,43 @@
       }
     }
 
-    // 3. File Input Previews & Interactivity
+    // 3. File Input Previews & Interactivity (with image compression and auto-rotation)
     const fileFields = ['child_photo', 'auth1_photo', 'auth2_photo', 'auth3_photo'];
+    const compressionOptions = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1200,
+      useWebWorker: true,
+      exifOrientation: true // Corrects iOS camera photo rotation
+    };
+
     fileFields.forEach(field => {
       const fileInput = document.getElementById(`file-${field}`);
       const previewImg = document.getElementById(`preview-${field}`);
       const statusSpan = document.getElementById(`status-${field}`);
 
-      fileInput.addEventListener('change', function() {
-        const file = this.files[0];
+      fileInput.addEventListener('change', async function() {
+        let file = this.files[0];
         if (file) {
-          statusSpan.textContent = `Seleccionado: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`;
-          
+          statusSpan.textContent = "Procesando imagen...";
+          try {
+            console.log(`[Compression]: Compressing and rotating file: ${file.name}`);
+            const compressedBlob = await imageCompression(file, compressionOptions);
+            file = new File([compressedBlob], file.name, {
+              type: file.type,
+              lastModified: Date.now()
+            });
+
+            // Put the compressed and rotated file back in the input
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+
+            statusSpan.textContent = `Seleccionado: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`;
+          } catch (err) {
+            console.error('[Compression Error]:', err);
+            statusSpan.textContent = `Seleccionado: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB) [Sin procesar]`;
+          }
+
           const reader = new FileReader();
           reader.onload = function(e) {
             previewImg.src = e.target.result;

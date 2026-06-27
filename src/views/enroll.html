@@ -12,6 +12,7 @@
   
   <!-- SweetAlert2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.1/dist/browser-image-compression.js"></script>
   
   <style>
     /* SweetAlert2 Styling overrides */
@@ -1010,15 +1011,9 @@
           preview.src = event.target.result;
           preview.classList.remove('hidden');
           if (prompt) prompt.classList.add('hidden');
-          dropZone.style.border = 'none';
-        }
-        reader.readAsDataURL(file);
-      }
-    }
-
     // Intercept form submit and do AJAX
     const form = document.getElementById('enrollmentForm');
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', async function(e) {
       e.preventDefault();
       
       // Final confirmation validation
@@ -1027,7 +1022,55 @@
         return;
       }
 
+      // Show loading modal using SweetAlert2
+      Swal.fire({
+        title: 'Procesando Inscripción',
+        html: `
+          <div class="bouncing-loader">
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <p class="text-sm font-semibold text-primary mt-4">Optimizando imágenes y preparando datos...</p>
+          <p class="text-xs text-on-surface-variant/70 mt-2 leading-relaxed">Rotando y aligerando fotografías para corregir orientación de iOS. Por favor, no cierres ni recargues esta pestaña.</p>
+        `,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        customClass: {
+          popup: 'swal2-popup'
+        }
+      });
+
       const formData = new FormData(form);
+
+      // Compress photo fields to fix EXIF rotation on iOS
+      const compressionOptions = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1200,
+        useWebWorker: true,
+        exifOrientation: true // Corrects iOS rotation
+      };
+
+      const photoFields = ['child_photo', 'auth1_photo', 'auth2_photo', 'auth3_photo'];
+      for (const field of photoFields) {
+        const fileInput = document.getElementById(field);
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+          try {
+            console.log(`[Compression]: Processing image for ${field}...`);
+            const originalFile = fileInput.files[0];
+            const compressedBlob = await imageCompression(originalFile, compressionOptions);
+            const compressedFile = new File([compressedBlob], originalFile.name, {
+              type: originalFile.type,
+              lastModified: Date.now()
+            });
+            formData.set(field, compressedFile);
+            console.log(`[Compression]: Compressed ${field} from ${(originalFile.size/1024/1024).toFixed(2)}MB to ${(compressedFile.size/1024/1024).toFixed(2)}MB`);
+          } catch (compressErr) {
+            console.error(`[Compression Error] Failed to compress field ${field}:`, compressErr);
+          }
+        }
+      }
 
       // Explicitly set both Spanish and English keys from the DOM values to ensure they are captured correctly (bypassing disabled fields or browser serialization differences)
       const getValue = (id) => {
@@ -1083,26 +1126,6 @@
       formData.set('auth3_name', getByNameValue('auth3Nombre'));
       formData.set('auth3Telefono', getByNameValue('auth3Telefono'));
       formData.set('auth3_phone', getByNameValue('auth3Telefono'));
-      
-      // Show loading modal using SweetAlert2
-      Swal.fire({
-        title: 'Procesando Inscripción',
-        html: `
-          <div class="bouncing-loader">
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-          <p class="text-sm font-semibold text-primary mt-4">Subiendo archivos y guardando datos...</p>
-          <p class="text-xs text-on-surface-variant/70 mt-2 leading-relaxed">Procesando imágenes de alta resolución y encriptando documentos de forma segura. Por favor, no cierres ni recargues esta pestaña.</p>
-        `,
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showConfirmButton: false,
-        customClass: {
-          popup: 'swal2-popup'
-        }
-      });
 
       fetch('/api/v1/enroll', {
         method: 'POST',
