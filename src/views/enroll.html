@@ -789,7 +789,7 @@
 
       if (sedeSelect && birthDateInput && ageSelect) {
         sedeSelect.addEventListener('change', handleBirthDateOrSedeChange);
-        birthDateInput.addEventListener('change', handleBirthDateOrSedeChange);
+        birthDateInput.addEventListener('blur', handleBirthDateOrSedeChange);
         
         if (sedeSelect.value || birthDateInput.value) {
           handleBirthDateOrSedeChange();
