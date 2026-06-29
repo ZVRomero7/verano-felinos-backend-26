@@ -10,11 +10,15 @@ const getSheetsClient = () => {
 
   if (serviceAccountEmail && serviceAccountKey) {
     try {
-      let rawKey = serviceAccountKey;
-      const private_key = rawKey.replace(/\\n/g, '\n').replace(/"/g, '').replace(/\n+/g, '\n').trim();
-      const auth = new google.auth.JWT({
-        email: serviceAccountEmail,
-        key: private_key,
+      const formattedPrivateKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY
+        ? process.env.GOOGLE_SERVICE_ACCOUNT_KEY.split('\\n').join('\n').replace(/"/g, '').replace(/'/g, '').trim()
+        : '';
+
+      const auth = new google.auth.GoogleAuth({
+        credentials: {
+          client_email: serviceAccountEmail,
+          private_key: formattedPrivateKey
+        },
         scopes: ['https://www.googleapis.com/auth/spreadsheets']
       });
       const sheets = google.sheets({ version: 'v4', auth });
