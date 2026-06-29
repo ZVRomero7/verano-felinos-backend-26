@@ -5,8 +5,11 @@ import { google } from 'googleapis';
  */
 const getSheetsClient = () => {
   try {
+    const credentialsStr = Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('utf-8');
+    const credentialsJSON = JSON.parse(credentialsStr);
+
     const auth = new google.auth.GoogleAuth({
-      keyFile: 'google-credentials.json',
+      credentials: credentialsJSON,
       scopes: ['https://www.googleapis.com/auth/spreadsheets']
     });
     const sheets = google.sheets({ version: 'v4', auth });

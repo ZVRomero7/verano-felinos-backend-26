@@ -15,8 +15,11 @@ const rootFolderId = process.env.GOOGLE_DRIVE_ROOT_ID || '1NaiQdN_Pxqg0ALWtTK_hE
  */
 const getDriveClient = () => {
   try {
+    const credentialsStr = Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('utf-8');
+    const credentialsJSON = JSON.parse(credentialsStr);
+
     const auth = new google.auth.GoogleAuth({
-      keyFile: 'google-credentials.json',
+      credentials: credentialsJSON,
       scopes: ['https://www.googleapis.com/auth/drive']
     });
     const drive = google.drive({ version: 'v3', auth });
