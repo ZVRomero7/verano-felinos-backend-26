@@ -5,12 +5,16 @@ import { google } from 'googleapis';
  */
 const getSheetsClient = () => {
   try {
-    const auth = new google.auth.GoogleAuth({
-      keyFile: 'google-credentials.json',
-      scopes: ['https://www.googleapis.com/auth/spreadsheets']
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      "https://developers.google.com/oauthplayground"
+    );
+    oauth2Client.setCredentials({
+      refresh_token: process.env.GOOGLE_REFRESH_TOKEN
     });
-    const sheets = google.sheets({ version: 'v4', auth });
-    return { sheets, auth };
+    const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
+    return { sheets, auth: oauth2Client };
   } catch (error) {
     console.error('[Google Sheets Auth Error]:', error.message);
     return null;
