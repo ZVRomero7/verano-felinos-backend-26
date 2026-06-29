@@ -708,34 +708,40 @@
 
   <!-- SCRIPT LOGIC -->
   <script>
-    // Sede selection age dynamic filtering
-    document.addEventListener('DOMContentLoaded', () => {
+    // Auto-calculate and validate age based on birth date and selected Sede
+    function handleBirthDateOrSedeChange() {
       const sedeSelect = document.getElementById('sede_id');
+      const birthDateInput = document.getElementById('child_birth_date');
       const ageSelect = document.getElementById('child_age');
-
-      if (sedeSelect && ageSelect) {
-        sedeSelect.addEventListener('change', function() {
-          const sede = this.value;
-          populateAgeOptions(sede);
-        });
-        
-        // Initial run
-        if (sedeSelect.value) {
-          populateAgeOptions(sedeSelect.value);
-        }
+      
+      if (!sedeSelect || !birthDateInput || !ageSelect) return;
+      
+      const sede = sedeSelect.value;
+      const birthDateStr = birthDateInput.value;
+      
+      if (!sede) {
+        return;
       }
-    });
-
-    function populateAgeOptions(sede) {
-      const ageSelect = document.getElementById('child_age');
-      if (!ageSelect) return;
       
-      const currentValue = ageSelect.value;
-      ageSelect.innerHTML = '<option value="" disabled selected></option>';
+      if (!birthDateStr) {
+        ageSelect.innerHTML = '<option value="" disabled selected></option>';
+        ageSelect.disabled = true;
+        return;
+      }
       
+      // Calculate age
+      const birthDate = new Date(birthDateStr + 'T00:00:00');
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      
+      // Rules by Sede
       let minAge = 4;
       let maxAge = 17;
-
+      
       if (sede === 'CEFID') {
         minAge = 4;
         maxAge = 15;
@@ -746,18 +752,50 @@
         ageSelect.disabled = true;
         return;
       }
-
-      ageSelect.disabled = false;
-      for (let i = minAge; i <= maxAge; i++) {
-        const opt = document.createElement('option');
-        opt.value = i;
-        opt.textContent = `${i} años`;
-        if (currentValue == i) {
-          opt.selected = true;
+      
+      if (age < minAge || age > maxAge) {
+        Swal.fire({
+          title: 'Edad fuera de rango',
+          text: `La edad calculada es de ${age} años. Las reglas por sede son: CEFID admite de 4 a 15 años, y UDU admite de 5 a 13 años.`,
+          icon: 'warning',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#004784'
+        });
+        
+        // Reset fields
+        birthDateInput.value = '';
+        ageSelect.innerHTML = '<option value="" disabled selected></option>';
+        ageSelect.disabled = true;
+      } else {
+        // Populate options and select calculated age
+        ageSelect.innerHTML = '<option value="" disabled selected></option>';
+        for (let i = minAge; i <= maxAge; i++) {
+          const opt = document.createElement('option');
+          opt.value = i;
+          opt.textContent = `${i} años`;
+          if (i === age) {
+            opt.selected = true;
+          }
+          ageSelect.appendChild(opt);
         }
-        ageSelect.appendChild(opt);
+        ageSelect.disabled = false;
       }
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const sedeSelect = document.getElementById('sede_id');
+      const birthDateInput = document.getElementById('child_birth_date');
+      const ageSelect = document.getElementById('child_age');
+
+      if (sedeSelect && birthDateInput && ageSelect) {
+        sedeSelect.addEventListener('change', handleBirthDateOrSedeChange);
+        birthDateInput.addEventListener('change', handleBirthDateOrSedeChange);
+        
+        if (sedeSelect.value || birthDateInput.value) {
+          handleBirthDateOrSedeChange();
+        }
+      }
+    });
 
     // Handles stepping
     let currentStep = 1;
@@ -1011,6 +1049,12 @@
           preview.src = event.target.result;
           preview.classList.remove('hidden');
           if (prompt) prompt.classList.add('hidden');
+          dropZone.style.border = 'none';
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
     // Intercept form submit and do AJAX
     const form = document.getElementById('enrollmentForm');
     form.addEventListener('submit', async function(e) {
