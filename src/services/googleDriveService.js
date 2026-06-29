@@ -13,28 +13,10 @@ const rootFolderId = process.env.GOOGLE_DRIVE_ROOT_ID || '1NaiQdN_Pxqg0ALWtTK_hE
 /**
  * Instantiates the Google Drive client. Returns null if credentials are not configured.
  */
-function healPrivateKey(rawKey) {
-  if (!rawKey) return '';
-  const keyData = rawKey
-    .replace(/-----BEGIN PRIVATE KEY-----/g, '')
-    .replace(/-----END PRIVATE KEY-----/g, '')
-    .replace(/\\n/g, '')
-    .replace(/\n/g, '')
-    .replace(/\s/g, '')
-    .replace(/"/g, '')
-    .replace(/'/g, '');
-
-  const chunks = keyData.match(/.{1,64}/g) || [];
-  return `-----BEGIN PRIVATE KEY-----\n${chunks.join('\n')}\n-----END PRIVATE KEY-----\n`;
-}
-
 const getDriveClient = () => {
   try {
     const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key: healPrivateKey(process.env.GOOGLE_SERVICE_ACCOUNT_KEY)
-      },
+      keyFile: 'google-credentials.json',
       scopes: ['https://www.googleapis.com/auth/drive']
     });
     const drive = google.drive({ version: 'v3', auth });
