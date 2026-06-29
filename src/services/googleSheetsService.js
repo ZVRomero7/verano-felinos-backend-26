@@ -3,13 +3,28 @@ import { google } from 'googleapis';
 /**
  * Instantiates the Google Sheets client. Returns null if credentials are not configured.
  */
+function healPrivateKey(rawKey) {
+  if (!rawKey) return '';
+  const keyData = rawKey
+    .replace(/-----BEGIN PRIVATE KEY-----/g, '')
+    .replace(/-----END PRIVATE KEY-----/g, '')
+    .replace(/\\n/g, '')
+    .replace(/\n/g, '')
+    .replace(/\s/g, '')
+    .replace(/"/g, '')
+    .replace(/'/g, '');
+
+  const chunks = keyData.match(/.{1,64}/g) || [];
+  return `-----BEGIN PRIVATE KEY-----\n${chunks.join('\n')}\n-----END PRIVATE KEY-----\n`;
+}
+
 const getSheetsClient = () => {
   try {
-    const credentialsStr = Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('utf-8');
-    const credentialsJSON = JSON.parse(credentialsStr);
-
     const auth = new google.auth.GoogleAuth({
-      credentials: credentialsJSON,
+      credentials: {
+        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        private_key: healPrivateKey(process.env.GOOGLE_SERVICE_ACCOUNT_KEY)
+      },
       scopes: ['https://www.googleapis.com/auth/spreadsheets']
     });
     const sheets = google.sheets({ version: 'v4', auth });
