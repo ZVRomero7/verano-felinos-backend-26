@@ -4,48 +4,17 @@ import { google } from 'googleapis';
  * Instantiates the Google Sheets client. Returns null if credentials are not configured.
  */
 const getSheetsClient = () => {
-  const serviceAccountEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const serviceAccountKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
-
-  if (serviceAccountEmail && serviceAccountKey) {
-    try {
-      const formattedPrivateKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY
-        ? process.env.GOOGLE_SERVICE_ACCOUNT_KEY.split('\\n').join('\n').replace(/"/g, '').replace(/'/g, '').trim()
-        : '';
-
-      const auth = new google.auth.GoogleAuth({
-        credentials: {
-          client_email: serviceAccountEmail,
-          private_key: formattedPrivateKey
-        },
-        scopes: ['https://www.googleapis.com/auth/spreadsheets']
-      });
-      const sheets = google.sheets({ version: 'v4', auth });
-      return { sheets, auth };
-    } catch (error) {
-      console.error('[Google Sheets Auth Error - Service Account]:', error.message);
-    }
+  try {
+    const auth = new google.auth.GoogleAuth({
+      keyFile: 'google-credentials.json',
+      scopes: ['https://www.googleapis.com/auth/spreadsheets']
+    });
+    const sheets = google.sheets({ version: 'v4', auth });
+    return { sheets, auth };
+  } catch (error) {
+    console.error('[Google Sheets Auth Error]:', error.message);
+    return null;
   }
-
-  if (refreshToken) {
-    try {
-      const oauth2Client = new google.auth.OAuth2(
-        process.env.GOOGLE_CLIENT_ID,
-        process.env.GOOGLE_CLIENT_SECRET,
-        "https://developers.google.com/oauthplayground"
-      );
-      oauth2Client.setCredentials({
-        refresh_token: refreshToken
-      });
-      const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
-      return { sheets, auth: oauth2Client };
-    } catch (error) {
-      console.error('[Google Sheets Auth Error - OAuth2]:', error.message);
-    }
-  }
-
-  return null;
 };
 
 /**
