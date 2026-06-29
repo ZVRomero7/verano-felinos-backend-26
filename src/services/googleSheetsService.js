@@ -11,10 +11,7 @@ const getSheetsClient = () => {
   if (serviceAccountEmail && serviceAccountKey) {
     try {
       let rawKey = serviceAccountKey;
-      if (rawKey.startsWith('"') && rawKey.endsWith('"')) {
-        rawKey = rawKey.slice(1, -1);
-      }
-      const private_key = rawKey.replace(/\\n/g, '\n').replace(/\n+/g, '\n').trim();
+      const private_key = rawKey.replace(/\\n/g, '\n').replace(/"/g, '').replace(/\n+/g, '\n').trim();
       const auth = new google.auth.JWT({
         email: serviceAccountEmail,
         key: private_key,
