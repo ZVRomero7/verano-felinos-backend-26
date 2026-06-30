@@ -17,7 +17,7 @@ const config = {
   textosInscrito: {
     xNombre: 60, // x - 15 - 10
     yNombre: 607, // Emparejado con el Y de los nombres de autorizados
-    xContacto: 90, // Movido 20 puntos menos
+    xContacto: 60, // Movido 20 puntos menos
     xTelefono: 240, // Movido 30 puntos a la izquierda para evitar superposición
     yEmergencia: 583,
     sizeNombre: 14,

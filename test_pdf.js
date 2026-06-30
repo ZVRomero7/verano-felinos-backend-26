@@ -5,20 +5,20 @@ import { generateCredential } from './src/services/pdfService.js';
 const testProfile = {
     folio: 'UDU-26-99999',
     sede: 'UDU', // Cambia a 'CEFID' para probar la otra plantilla
-    nombre: 'Adrián',
-    paterno: 'Romero',
+    nombre: 'Maximiliano',
+    paterno: 'Ruíz',
     materno: 'Felino',
-    edad: '8',
+    edad: '10',
     fotoUrl: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=300&q=80', // Foto dummy de internet
-    emergencyContactName: 'Roberto Gómez',
+    emergencyContactName: 'Lissette Manzanilla Martínez',
     emergencyContactPhone: '442-123-4567',
-    auth1Nombre: 'Victor Romero',
+    auth1Nombre: 'Lissette Manzanilla',
     auth1FotoUrl: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=300&q=80',
     auth1Telefono: '442-111-2233',
-    auth2Nombre: 'Alexander Romero',
+    auth2Nombre: 'Mario Javier',
     auth2FotoUrl: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=300&q=80',
     auth2Telefono: '442-444-5566',
-    auth3Nombre: 'Linda Ledesma',
+    auth3Nombre: 'Rosa Elena',
     auth3FotoUrl: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=300&q=80',
     auth3Telefono: '442-777-8899'
 };
